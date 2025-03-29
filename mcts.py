@@ -192,7 +192,7 @@ def greedyPolicy(node: treeNode, mcts_task):
             break
         new_ys = [strs + action for action in actions]
         cur_step += 1
-        values = [mcts_task.get_step_value(new_y) for new_y in new_ys]
+        values = [mcts_task.get_step_value(new_y, action) for new_y in new_ys for action in actions]
         idx = numpy.argmax(values)
         strs = new_ys[idx]
         value = values[idx]

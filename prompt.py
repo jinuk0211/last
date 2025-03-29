@@ -5,15 +5,15 @@ Provide only decimal score between 0 and 1
 Input: 
 Problem:"""
 
-image_description_score = '''Score how well the image description relates to the given problem. Higher accuracy of description should result in a higher score, which must be between 0 and 1.
+image_description_score = '''Score how well the image description relates to the given problem and image. Higher accuracy of description should result in a higher score, which must be between 0 and 1.
 Input:
 Problem: '''
 
-critic_simplified = '''Your task is to evaluate whether the given steps can successfully solve the provided problem and output a score. The score should be a decimal between 0 and 1. If all the steps are incorrect (every step is wrong), the score is 0. If all the steps are correct and the answer is calculated, the score is 1. The more incorrect steps there are, the closer the score is to 0. The closer the steps are to the final answer, the closer the score is to 1. Steps that only contain textual descriptions without calculation formulas should generally receive a low score. A score of 0.9 or higher must be given only if the specific numerical answer has been calculated (a complete thought process without calculating the answer or only listing the calculation formula must receive a score below 0.9). 
+critic_simplified = '''Your task is to evaluate whether the given steps can successfully solve the provided problem and output a score. The score should be a decimal between 0 and 1. If all the steps are incorrect (every step is wrong), the score is 0. If all the steps are correct and the answer is calculated, the score is 1. The closer the steps are to the final answer, the closer the score is to 1. A score of 0.9 or higher must be given only if the specific numerical answer has been calculated (a complete thought process without calculating the answer or only listing the calculation formula must receive a score below 0.9). 
 
 First, generate an analysis, then provide the score. Your analysis and scoring should be entirely based on the input steps provided. Do not generate additional steps.
 
-Now, given a problem and the provided steps, provide the analysis and score. Note that the analysis should not include the next steps, and the scoring should be entirely based on the input steps and image description provided.
+Now, given a problem and the provided steps, provide the analysis and score and the scoring should be entirely based on the input steps and image description provided.
 The output format is limited to: "Analysis:...\nScore:...", where ... represents the omitted output content, which you need to fill in.
 
 Input:

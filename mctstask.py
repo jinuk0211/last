@@ -9,7 +9,7 @@ CLIP_MODEL_PATH = "openai/clip-vit-large-patch14-336"
 import torch
 from transformers import Qwen2_5_VLForConditionalGeneration, AutoTokenizer, AutoProcessor
 from prompt import llm_prompt
-
+import re
 
 # Task = MCTS_Task(question, model, processor, args.propose_method, args.value_method, args.branch, args.end_gate,
 #                     args.roll_policy, args.roll_branch, args.roll_forward_steps, args.time_limit,
@@ -93,7 +93,7 @@ class MCTS_Task(SearchTask):
                     if self.lang == 'en':
                         #summary 제공
                         prompt = self.MATH_summary_prompt_wrap(self.question, solution)
-                        response = get_proposal(prompt, self.propose_method, self.img_path)
+                        response = get_proposal(self.model,self.processor,prompt, self.img_path)
 
                         if not response:
                             print('Failed to get the review!\n')
@@ -136,7 +136,8 @@ class MCTS_Task(SearchTask):
     def get_first_step(self, y):
         prompt = self.image_description(self.question, y)
         response = get_proposal(self.model, self.processor, prompt,self.img_path)
-        return response
+        print(f'처음 생성된 응답:{response}\n')
+        return response + '\n'
     
     def get_next_step(self, y, step_n):
 
@@ -152,55 +153,15 @@ class MCTS_Task(SearchTask):
         print(f'response:{response}')
         # if len(response) > 5:
         #     response = response[:5]
+        
+        if response.startswith("Next step: "):  
+            stp = response[len("Next step: "):]  # "Next step: " 길이만큼 잘라냄
+        else:
+            stp = response  # "Next step: "이 없으면 그대로 유지
 
-        p = ''
-        for _ in response:
-            p = p + _ + ' '
-        p = p.strip()
-
-        if self.lang == 'en':
-            if "Next step:" in p:
-                # stp = p.split('Next step:')[1].strip()
-                stp = re.split(r'Next step:\s*', p, maxsplit=1)[-1].strip()
-                if len(stp) < 2:
-                    print('output이 너무 적습니다!\n')
-                    return ''
-                if stp in y:
-                    print('출력된 단계가 중복되었습니다!"\n')
-                    return ''
-
-                revised_ = 'Step ' + str(step_n) + ': ' + stp
-                print(f'표준화된 next step:{revised_}\n')
-                return revised_ + '\n'
-
-            # elif "Step" in p and ":" in p:
-            #     pre_len = len(p.split(':')[0])
-            #     p_ = p[pre_len:]
-            #     p_ = p_.split('Step')[0].strip()
-            #     if len(p_) < 4:
-            #         print('output이 너무 적습니다!\n')
-            #         return ''
-            #     p_ = p_[1:].strip()
-            #     if p_ in y:
-            #         print('출력된 단계가 중복되었습니다!"\n')
-            #         return ''
-
-            #     revised_ = 'Step ' + str(step_n) + ': ' + p_
-            #     print(f'revised 이후의 step:{revised_}\n')
-            #     return revised_ + '\n'
-
-            else:
-                p_ = p.strip()
-                if len(p_) < 3:
-                    print('output이 너무 적습니다!\n')
-                    return ''
-                if p_ in y:
-                    print('출력된 단계가 중복되었습니다!"\n')
-                    return ''
-                p_ = re.split(r'Next step:\s*', p_, maxsplit=1)[-1].strip()
-                revised_ = 'Step ' + str(step_n) + ': ' + p_
-                print(f'revised 이후의 step: {revised_}\n')
-                return revised_ + '\n'
+        revised_ = 'Step ' + str(step_n) + ': ' + stp
+        print(f'revised 이후의 step: {revised_}\n')
+        return revised_ + '\n'
 
 
 
@@ -286,25 +247,17 @@ class MCTS_Task(SearchTask):
             p = p + _ + ' '
         p = p.strip()
 
-        if self.lang == 'zh':
-            if '已解决' in p or '已经解决' in p:
-                if step_n > 1:
-                    print('此步问题已解决，停止下探。\n')
-                    print('标准化后的意见: <end>\n')
-                    return '<end>'
+       
+        
+        if 'unsolved' in p or step_n <= 1:
             print('标准化后的意见: <continue>\n')
             return '<continue>'
-
+        elif 'solved' in p:
+            print('标准化后的意见: <end>\n')
+            return '<end>'
         else:
-            if 'unsolved' in p or step_n <= 1:
-                print('标准化后的意见: <continue>\n')
-                return '<continue>'
-            elif 'solved' in p:
-                print('标准化后的意见: <end>\n')
-                return '<end>'
-            else:
-                print('标准化后的意见: <continue>\n')
-                return '<continue>'
+            print('标准化后的意见: <continue>\n')
+            return '<continue>'
 
     def get_reflection(self, y, step_n):
         if self.propose_method in ['local', 'mistral', 'llama'] and self.lang == 'en':
@@ -536,10 +489,13 @@ class MCTS_Task(SearchTask):
             return solution, summ
 
     def get_step_value(self, y, action):
+        print(f'y:{y}\n')
+        print(f'action:{action}')
         if y in self.value_cache.keys():
             return self.value_cache[y]
         prompt_answer = 'Problem: ' + self.question + '\nSolution:\n' + y
         if 'Image Description' in action:
+            print('image description에 대한 value 생성중')
             lmm_prompt = self.image_description_score(self.question, y)
         else:
             lmm_prompt = self.value_prompt_wrap(self.question, y) 
@@ -547,28 +503,18 @@ class MCTS_Task(SearchTask):
         if self.value_method == 'local_prm': #clip, prm + llm + prm
             confidence, value_score = get_value(self.model,self.processor, prompt_answer, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
             value = (1-self.alpha)*confidence + self.alpha*value_score
-            print(f'获得评分:{value}\n') #评分
+            print(f'value:{value}\n') #评分
             self.value_cache.update({y: value})
             return value
-            # seed=170
-            # response = []
-            # cnt = 2
-            # while not response and cnt:
-            #     response = composer2_5(prompt_answer, model=BASE_MODEL_GPT, temperature=self.temperature, max_tokens=self.max_tokens)
-            #     cnt -= 1
-            # if not response:
-            #     print(f'obtain<{self.value_method}>score fail!\n')
-            #     return []
-            # return response
-            #미완
 
 
         else: #qwen, llama3 등의 lmm
             # confidence, response = get_value(prompt, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
+            
             response = get_value(self.model,self.processor, prompt_answer, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
             value = self.value_outputs_unwrap(response, self.low, self.high)
             # value = (1-self.alpha)*confidence + self.alpha*value
-            print(f'获得评分:{value}\n') #평가받기
+            print(f'unwrap된 value:{value}\n') #평가받기
             self.value_cache.update({y: value})
             return value
 
@@ -593,18 +539,20 @@ def get_value(model, processor, prompt, llm_prompt, lmm_prompt, action, value_me
         # clip_score = get_clip_score(action,img_path,clip_model,clip_processor)
         response = get_proposal(model, processor, lmm_prompt, img_path)
         # return clip_score, response
+        print(f'value로 생성된 값:{response}')
         return response
         
     else:  #lmm은 둘다동일하지만 이제 img -> clip, reasoning_step -> llm
         while not response and cnt:
             # value = LLM(llm_prompt, BASE_MODEL_GLM, temperature=temperature, max_tokens=max_tokens, seed=seed)
             response = get_proposal(model, processor, lmm_prompt, img_path)
-            
+
             cnt -= 1
         # if not value:
         #     print(f'obtain<{method}>score fail!\n')
         #     return []
         # return value, response
+        print(f'value로 생성된 값:{response}')
         return response
 
 

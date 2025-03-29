@@ -12,20 +12,22 @@ from PIL import Image
 from transformers import Qwen2_5_VLForConditionalGeneration, AutoTokenizer, AutoProcessor
 from qwen_vl_utils import process_vision_info
 from easydict import EasyDict
+# from model import clip
+# from model import llm
 
-os.environ["OPENAI_API_KEY"] = "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"# Replace with your 
-os.environ["OPENAI_API_BASE"] = "https://api.openai.com/v1/chat/completions" # Replace with your actual base
-api_key = os.getenv("OPENAI_API_KEY")
-api_base = os.getenv("OPENAI_API_BASE")
 
 
 def run(args):
+    os.environ["OPENAI_API_KEY"] = "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"
+    os.environ["OPENAI_API_BASE"] = "https://api.openai.com/v1/chat/completions" # Replace with your actual base
+    api_key = os.getenv("OPENAI_API_KEY")
+    api_base = os.getenv("OPENAI_API_BASE")    
     print('-'*30, 'Begin testing', '-'*30, '\n')
     try:
         dataset_kwargs = {}
         dataset_name = args.dataset#"MathVista_MINI"
         dataset = build_dataset(dataset_name, **dataset_kwargs)
-
+        dataset.data = dataset.data.iloc[1:2]
         data_len = len(dataset.data)
     except Exception as e:
         print(f'File must be standardized json!\nError type:{e}\n')
@@ -35,7 +37,7 @@ def run(args):
     model, processor = qwen('Qwen2_5')
     output_list = []
     correct_count = 0
-    for i in len(dataset.data):
+    for i in range(len(dataset.data)):
         image = dataset.data.iloc[i]['image']
         dataset.dump_image(dataset.data.iloc[i])
         img = osp.join(dataset.img_root, f"{dataset.data.iloc[i]['index']}.jpg")
@@ -51,20 +53,21 @@ def run(args):
                             args.temperature, use_case_prompt=args.use_case_prompt, use_reflection=args.use_reflection,
                             low=args.low, high=args.high, evaluate=args.evaluate,img_path=img)
         output, root = Task.run()
-
+        print(output)
         # evaluate metrics
         if args.evaluate:
-            dataset.data['prediction'] = output
+            dataset.data['prediction'] = output['summary']
             dataset.data = dataset.data.drop(columns=['image'])
-        output_path = '/content/output/dataset.xlsx'
+        output_path = '/workspace/mcts/dataset.xlsx'
         dataset.data.to_excel(output_path, index=False)
         judge_kwargs = {
             'nproc': 4,
             'verbose': False,
             'retry': 3,
-            'model': "gpt_4o_mini"}
+            'model': "gpt-4o-mini"}
 
-        eval_results = dataset.evaluate('/content/output/dataset.xlsx', **judge_kwargs)
+        eval_results = dataset.evaluate('/workspace/mcts/dataset.xlsx', **judge_kwargs)
+        print(eval_results)
         # output
 
     
@@ -80,7 +83,7 @@ def get_args():
         'mode': 'mcts',  # choices: ['cot', 'tot', 'mcts']
         'temperature': 0.7,
         'time_limit': None,
-        'iteration_limit': 30,
+        'iteration_limit': 2,
         'roll_policy': 'greedy',  # choices: ['random', 'greedy']
         'exploration_constant': 0.4,
         'roll_forward_steps': 2,
@@ -123,35 +126,36 @@ print(args.task_name)  # 'scibench'
 
 if __name__ == "__main__":
     torch.cuda.empty_cache()
-    
-    dataset_kwargs = {}
-    dataset_name = "MathVista_MINI"
-    dataset = build_dataset(dataset_name, **dataset_kwargs)
     args = get_args()
-    print(args.task_name)
+    run(args)
+    # dataset_kwargs = {}
+    # dataset_name = "MathVista_MINI"
+    # dataset = build_dataset(dataset_name, **dataset_kwargs)
+    
+    # print(args.task_name)
 
-    # clip_model = CLIPModel.from_pretrained(args.clip_model_path)
-    # clip_processor = AutoProcessor.from_pretrained(args.clip_model_path)
-    data_len = len(dataset.data)
-    # for i in range(len(dataset.data)):
-    image = dataset.data.iloc[1]['image']
-    dataset.dump_image(dataset.data.iloc[1])
-    img_path = osp.join(dataset.img_root, f"{dataset.data.iloc[1]['index']}.jpg")
-    question = dataset.data.iloc[1]['question']
-    model, processor = qwen('Qwen2_5')
-    task = MCTS_Task(question, model, processor, args.propose_method, args.value_method, args.branch, args.end_gate,
-                    args.roll_policy, args.roll_branch, args.roll_forward_steps, args.time_limit,
-                    args.iteration_limit, args.exploration_constant, args.alpha, args.inf,
-                    args.temperature, use_case_prompt=args.use_case_prompt, use_reflection=args.use_reflection,
-                    low=args.low, high=args.high, evaluate=args.evaluate, img_path ='/root/LMUData/images/MathVista_MINI/2.jpg')
-    root = treeNode('')
-    flag, node = selectNode(root, task)
-    actions = get_next_steps_expand(node, task)
-    print(actions)
-    node = expand(node, task)
-    reflection = task.get_simple_reflection(node.y, node.depth + 1)
-    print(f'reflection:{reflection}')
-    print(node.y)
-    print(f'root.reflection:{root.reflection}')
-    print(node.children)
-    print(f'node.reflection:{node.reflection}')
+    # # clip_model = CLIPModel.from_pretrained(args.clip_model_path)
+    # # clip_processor = AutoProcessor.from_pretrained(args.clip_model_path)
+    # data_len = len(dataset.data)
+    # # for i in range(len(dataset.data)):
+    # image = dataset.data.iloc[1]['image']
+    # dataset.dump_image(dataset.data.iloc[1])
+    # img_path = osp.join(dataset.img_root, f"{dataset.data.iloc[1]['index']}.jpg")
+    # question = dataset.data.iloc[1]['question']
+    # model, processor = qwen('Qwen2_5')
+    # task = MCTS_Task(question, model, processor, args.propose_method, args.value_method, args.branch, args.end_gate,
+    #                 args.roll_policy, args.roll_branch, args.roll_forward_steps, args.time_limit,
+    #                 args.iteration_limit, args.exploration_constant, args.alpha, args.inf,
+    #                 args.temperature, use_case_prompt=args.use_case_prompt, use_reflection=args.use_reflection,
+    #                 low=args.low, high=args.high, evaluate=args.evaluate, img_path ='/root/LMUData/images/MathVista_MINI/2.jpg')
+    # root = treeNode('')
+    # flag, node = selectNode(root, task)
+    # actions = get_next_steps_expand(node, task)
+    # print(actions)
+    # node = expand(node, task)
+    # reflection = task.get_simple_reflection(node.y, node.depth + 1)
+    # print(f'reflection:{reflection}')
+    # print(node.y)
+    # print(f'root.reflection:{root.reflection}')
+    # print(node.children)
+    # print(f'node.reflection:{node.reflection}')
