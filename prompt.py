@@ -1,18 +1,19 @@
-critic_simplified = '''Your task is to evaluate whether the given steps can successfully solve the provided problem and output a score. The score should be a decimal between 0 and 1. If all the steps are incorrect (every step is wrong), the score is 0. If all the steps are correct and the answer is calculated, the score is 1. The more incorrect steps there are, the closer the score is to 0. The closer the steps are to the final answer, the closer the score is to 1. Steps that only contain textual descriptions without calculation formulas should generally receive a low score. A score of 0.9 or higher must be given only if the specific numerical answer has been calculated (a complete thought process without calculating the answer or only listing the calculation formula must receive a score below 0.9).
+llm_prompt = """Evaluate the given solution (not necessarily complete) based on the clarity, coherence, and correctness of the logical reasoning process. Assess whether the steps follow a structured, step-by-step approach, ensuring that intermediate steps are neither skipped nor incorrect. Consider whether assumptions are clearly stated, conclusions logically follow from premises, and the response adheres to formal rules in mathematical proofs or coding logic. 
 
-First, generate an analysis, then provide the score. Your analysis and scoring should be entirely based on the input steps provided. Do not generate additional steps. Please learn from the following examples which doesn't involve image.
+Provide only decimal score between 0 and 1
 
+Input: 
+Problem:"""
+
+image_description_score = '''Score how well the image description relates to the given problem. Higher accuracy of description should result in a higher score, which must be between 0 and 1.
 Input:
-Problem: Determine for which values of p the generalized integral \( \int_0^{+\infty} \frac{x^p \ln x}{(1+x^2)^2}dx \) converges.
-Image description
-Given steps:
-Step 1: To show the convergence of the integral, consider splitting the integral into two parts: \( \int_0^{+\infty} \frac{x^p \ln x}{(1+x^2)^2} dx = \int_0^1 \frac{x^p \ln x}{(1+x^2)^2} dx + \int_1^{+\infty} \frac{x^p \ln x}{(1+x^2)^2} dx \).
-Step 2: For the first part, \( 0 \leq \frac{x^p \ln x}{(1+x^2)^2} \leq x^p \), so it converges if and only if \( p > -2 \).
-Output:
-Analysis: Step 1 correctly obtains the idea of splitting the integral, but Step 2 is incorrect in deriving the convergence condition. \( 0 \leq \frac{x^p \ln x}{(1+x^2)^2} \leq x^p \), and according to \( \int_0^1 x^p dx \) converging if and only if \( p > -1 \), the original integral converges if and only if \( p > -1 \), not \( p > -2 \).
-Score: 0.1
+Problem: '''
 
-Now, given a problem and the provided steps, provide the analysis and score. Note that the analysis should not include the next steps, and the scoring should be entirely based on the input steps provided.
+critic_simplified = '''Your task is to evaluate whether the given steps can successfully solve the provided problem and output a score. The score should be a decimal between 0 and 1. If all the steps are incorrect (every step is wrong), the score is 0. If all the steps are correct and the answer is calculated, the score is 1. The more incorrect steps there are, the closer the score is to 0. The closer the steps are to the final answer, the closer the score is to 1. Steps that only contain textual descriptions without calculation formulas should generally receive a low score. A score of 0.9 or higher must be given only if the specific numerical answer has been calculated (a complete thought process without calculating the answer or only listing the calculation formula must receive a score below 0.9). 
+
+First, generate an analysis, then provide the score. Your analysis and scoring should be entirely based on the input steps provided. Do not generate additional steps.
+
+Now, given a problem and the provided steps, provide the analysis and score. Note that the analysis should not include the next steps, and the scoring should be entirely based on the input steps and image description provided.
 The output format is limited to: "Analysis:...\nScore:...", where ... represents the omitted output content, which you need to fill in.
 
 Input:

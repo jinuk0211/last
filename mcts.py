@@ -61,7 +61,7 @@ def expand(node: treeNode, mcts_task):
         if action not in node.children.keys():
             node.append_children(action)
             child = node.children[action]
-            value = mcts_task.get_step_value(child.y)
+            value = mcts_task.get_step_value(child.y,action)
             child.update_value(value)
             if mcts_task.sample_value == 'full':
                 if mcts_task.use_reflection == 'common':

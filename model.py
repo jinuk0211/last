@@ -55,7 +55,7 @@ def get_proposal(model, processor, prompt, img_path):
     if not response:
         print(f'obtain<qwen>response fail!\n')
         return []
-    return response
+    return response[0]
 
 
 

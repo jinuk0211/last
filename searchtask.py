@@ -16,6 +16,10 @@ class SearchTask(object):
         self.value_cache = {}
 
     @staticmethod
+    def image_description_score(x,y):
+        prompt = image_description_score + x 
+        return prompt
+    @staticmethod
     def image_description(x,y):
         image_description_prompt = '''
         Your task is to provide the image description based on a given image and corresponding problem,
@@ -25,8 +29,13 @@ class SearchTask(object):
 
         Given problem: '''
         prompt = image_description_prompt + x
-        return prompt
+        return prompt        
+    @staticmethod
+    def llm_prompt(x,y):
 
+        prompt = llm_prompt + x + y
+        return prompt
+        
     @staticmethod
     def summary_prompt_wrap(x: str, y: str = '') -> str:
         summary_prompt = '''

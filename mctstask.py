@@ -8,7 +8,7 @@ from PIL import Image
 CLIP_MODEL_PATH = "openai/clip-vit-large-patch14-336"
 import torch
 from transformers import Qwen2_5_VLForConditionalGeneration, AutoTokenizer, AutoProcessor
-
+from prompt import llm_prompt
 
 
 # Task = MCTS_Task(question, model, processor, args.propose_method, args.value_method, args.branch, args.end_gate,
@@ -61,7 +61,10 @@ class MCTS_Task(SearchTask):
         self.reward_model_type = 'vm'
         self.lang = lang
         self.weighted_verify = weighted_verify
-
+        
+    def update_count(self):
+        self.node_count += 1
+        
     def set_limit_type(self):
       if self.time_limit is not None:
           if self.iteration_limit is not None:
@@ -144,11 +147,11 @@ class MCTS_Task(SearchTask):
 
         response =  get_proposal(self.model, self.processor, prompt, self.img_path)
         if not response:
-            print('获得下一步失败！\n')
+            print('Failed to get the next step!\n')
             return ''
-
-        if len(response) > 5:
-            response = response[:5]
+        print(f'response:{response}')
+        # if len(response) > 5:
+        #     response = response[:5]
 
         p = ''
         for _ in response:
@@ -157,33 +160,34 @@ class MCTS_Task(SearchTask):
 
         if self.lang == 'en':
             if "Next step:" in p:
-                stp = p.split('Next step:')[1].strip()
+                # stp = p.split('Next step:')[1].strip()
+                stp = re.split(r'Next step:\s*', p, maxsplit=1)[-1].strip()
                 if len(stp) < 2:
                     print('output이 너무 적습니다!\n')
                     return ''
                 if stp in y:
-                    print('输出步骤重复！\n')
+                    print('출력된 단계가 중복되었습니다!"\n')
                     return ''
 
                 revised_ = 'Step ' + str(step_n) + ': ' + stp
                 print(f'표준화된 next step:{revised_}\n')
                 return revised_ + '\n'
 
-            elif "Step" in p and ":" in p:
-                pre_len = len(p.split(':')[0])
-                p_ = p[pre_len:]
-                p_ = p_.split('Step')[0].strip()
-                if len(p_) < 4:
-                    print('output이 너무 적습니다!\n')
-                    return ''
-                p_ = p_[1:].strip()
-                if p_ in y:
-                    print('输出步骤重复！\n')
-                    return ''
+            # elif "Step" in p and ":" in p:
+            #     pre_len = len(p.split(':')[0])
+            #     p_ = p[pre_len:]
+            #     p_ = p_.split('Step')[0].strip()
+            #     if len(p_) < 4:
+            #         print('output이 너무 적습니다!\n')
+            #         return ''
+            #     p_ = p_[1:].strip()
+            #     if p_ in y:
+            #         print('출력된 단계가 중복되었습니다!"\n')
+            #         return ''
 
-                revised_ = 'Step ' + str(step_n) + ': ' + p_
-                print(f'标准化后新的步骤:{revised_}\n')
-                return revised_ + '\n'
+            #     revised_ = 'Step ' + str(step_n) + ': ' + p_
+            #     print(f'revised 이후의 step:{revised_}\n')
+            #     return revised_ + '\n'
 
             else:
                 p_ = p.strip()
@@ -191,11 +195,11 @@ class MCTS_Task(SearchTask):
                     print('output이 너무 적습니다!\n')
                     return ''
                 if p_ in y:
-                    print('输出步骤重复！\n')
+                    print('출력된 단계가 중복되었습니다!"\n')
                     return ''
-
+                p_ = re.split(r'Next step:\s*', p_, maxsplit=1)[-1].strip()
                 revised_ = 'Step ' + str(step_n) + ': ' + p_
-                print(f'标准化后新的步骤:{revised_}\n')
+                print(f'revised 이후의 step: {revised_}\n')
                 return revised_ + '\n'
 
 
@@ -535,8 +539,11 @@ class MCTS_Task(SearchTask):
         if y in self.value_cache.keys():
             return self.value_cache[y]
         prompt_answer = 'Problem: ' + self.question + '\nSolution:\n' + y
-        lmm_prompt = self.value_prompt_wrap(self.question, y)
-        llm_prompt = llm_prompt.format()
+        if 'Image Description' in action:
+            lmm_prompt = self.image_description_score(self.question, y)
+        else:
+            lmm_prompt = self.value_prompt_wrap(self.question, y) 
+        llm_prompt = self.llm_prompt(self.question, y)
         if self.value_method == 'local_prm': #clip, prm + llm + prm
             confidence, value_score = get_value(self.model,self.processor, prompt_answer, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
             value = (1-self.alpha)*confidence + self.alpha*value_score
