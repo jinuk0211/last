@@ -1,6 +1,6 @@
 llm_prompt = """Evaluate the given solution (not necessarily complete) based on the clarity, coherence, and correctness of the logical reasoning process. Assess whether the steps follow a structured, step-by-step approach, ensuring that intermediate steps are neither skipped nor incorrect. Consider whether assumptions are clearly stated, conclusions logically follow from premises, and the response adheres to formal rules in mathematical proofs or coding logic. 
 
-Provide only decimal score between 0 and 1
+Provide only decimal score between 0 and 1. The output format is limited to: "Score:..." where ... represents the omitted output content, which you need to fill in.
 
 Input: 
 Problem:"""
@@ -9,18 +9,16 @@ image_description_score = '''Score how well the image description relates to the
 Input:
 Problem: '''
 
-critic_simplified = '''Your task is to evaluate whether the given steps can successfully solve the provided problem and output a score. The score should be a decimal between 0 and 1. If all the steps are incorrect (every step is wrong), the score is 0. If all the steps are correct and the answer is calculated, the score is 1. The closer the steps are to the final answer, the closer the score is to 1. A score of 0.9 or higher must be given only if the specific numerical answer has been calculated (a complete thought process without calculating the answer or only listing the calculation formula must receive a score below 0.9). 
-
+critic_simplified = '''Your task is to evaluate whether the given steps can successfully solve the provided problem and output a score. The score should be a decimal between 0 and 1. If all the steps are correct and the answer is calculated, the score is 1. The closer the steps are to the final answer, the closer the score is to 1. A score of 0.9 or higher must be given only if the specific numerical answer has been calculated.
 First, generate an analysis, then provide the score. Your analysis and scoring should be entirely based on the input steps provided. Do not generate additional steps.
-
-Now, given a problem and the provided steps, provide the analysis and score and the scoring should be entirely based on the input steps and image description provided.
-The output format is limited to: "Analysis:...\nScore:...", where ... represents the omitted output content, which you need to fill in.
+Now, given a problem, image, image description and the provided steps, provide the score and the scoring should be entirely based on the input steps and image description provided.
+The output format is limited to: "Score:...", where ... represents the omitted output content, which you need to fill in.
 
 Input:
 Problem: '''
 
 single_reflection_prompt_simple_en = '''
-You are an expert in science. Given a science problem and some corresponding steps (not necessarily complete) to answer it, you need to determine whether the given steps have completely solved the problem.
+You are an expert in math. Given a problem, image, image description and some corresponding steps (not necessarily complete) to answer it, you need to determine whether the given steps have completely solved the problem.
 
 You need to distinguish between two cases and give the corresponding output.
 Case 1: If the given steps have already solved the problem and provided the final answer to the question, then you should output: "Problem solved" and nothing else.
@@ -31,7 +29,7 @@ Here is the input, please follow the requested output instructions, you do not n
 Problem: '''
 
 single_proposal_prompt = '''
-Your task is to provide the correct next step based on a given problem, image description and the existing solution steps (which may not be complete). Below are a few examples for you to learn from.
+Your task is to provide the correct next step based on a given problem, image, image description and the existing solution steps (which may not be complete). Below are a few examples for you to learn from.
 
 Assuming the input consists of n steps, the input format is:
 "Problem:...
@@ -50,43 +48,43 @@ Below is the input, please provide the output according to the specified format 
 
 Problem:'''
 
-zero_single_proposal_prompt_en = '''
-Your task is to give the correct next step, given probl em, image description and an existing partial solution (not a complete answer).
-Assuming the input is n-steps, then the format of the input is:
-"Problem: ...
-Existing Steps:
-Step 1: ...
-Step 2: ...
-...
-Step n: ..."
-where ... denotes omitted input information.
-If no existing steps are provided, you need to briefly analyze the problem from scratch and then output the first step. Otherwise, you need to output the next step (step n+1) that you think is correct, following the ideas and analysis of the existing steps.
-The output format is limited to:
-"Next step: ..."
-where ... indicates omitted output information, which is the part you should fill in. Your output should be a complete reasoning step that includes calculations, reasoning, choosing answers, etc.
-Here is the input, please follow the restricted output format.
+# zero_single_proposal_prompt_en = '''
+# Your task is to give the correct next step, given probl em, image description and an existing partial solution (not a complete answer).
+# Assuming the input is n-steps, then the format of the input is:
+# "Problem: ...
+# Existing Steps:
+# Step 1: ...
+# Step 2: ...
+# ...
+# Step n: ..."
+# where ... denotes omitted input information.
+# If no existing steps are provided, you need to briefly analyze the problem from scratch and then output the first step. Otherwise, you need to output the next step (step n+1) that you think is correct, following the ideas and analysis of the existing steps.
+# The output format is limited to:
+# "Next step: ..."
+# where ... indicates omitted output information, which is the part you should fill in. Your output should be a complete reasoning step that includes calculations, reasoning, choosing answers, etc.
+# Here is the input, please follow the restricted output format.
 
-Problem: '''
+# Problem: '''
 
-zero_single_proposal_prompt_use_reflection_en = '''
-Your task is to give the correct next step, given a science problem, an existing partial solution (not a complete answer) and some analysis for the next step.
-Assuming the input is n-steps, then the format of the input is:
-"Problem: ...
-Existing Steps:
-Step 1: ...
-Step 2: ...
-...
-Step n: ...
-Analysis: ..."
+# zero_single_proposal_prompt_use_reflection_en = '''
+# Your task is to give the correct next step, given a science problem, an existing partial solution (not a complete answer) and some analysis for the next step.
+# Assuming the input is n-steps, then the format of the input is:
+# "Problem: ...
+# Existing Steps:
+# Step 1: ...
+# Step 2: ...
+# ...
+# Step n: ...
+# Analysis: ..."
 
-where ... denotes omitted input information.
-If no existing steps are provided, you need to output the first step referring to the given analysis. Otherwise, you need to output the next step (step n+1) that you think is correct, following the ideas of the existing steps and provided analysis.
-The output format is limited to:
-"Next step: ..."
-where ... indicates omitted output information, which is the part you should fill in. Your output should be a complete reasoning step that includes calculations, reasoning, choosing answers, etc.
-Here is the input, please follow the restricted output format.
+# where ... denotes omitted input information.
+# If no existing steps are provided, you need to output the first step referring to the given analysis. Otherwise, you need to output the next step (step n+1) that you think is correct, following the ideas of the existing steps and provided analysis.
+# The output format is limited to:
+# "Next step: ..."
+# where ... indicates omitted output information, which is the part you should fill in. Your output should be a complete reasoning step that includes calculations, reasoning, choosing answers, etc.
+# Here is the input, please follow the restricted output format.
 
-Problem: '''
+# Problem: '''
 
 
 single_reflection_prompt_en = '''

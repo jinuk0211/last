@@ -8,13 +8,13 @@ def qwen(model):
     if model == 'Qwen2_5':
         print('init qwen2.5 vl 7b model')
         Qwen2_5 = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-            'Qwen/Qwen2.5-VL-3B-Instruct', torch_dtype=torch.bfloat16, device_map="auto", 
+            'Qwen/Qwen2.5-VL-7B-Instruct', torch_dtype=torch.bfloat16, device_map="auto", 
             # attn_implementation='flash_attention_2',
         )
         # min_pixels = 256*28*28
         # max_pixels = 1280*28*28
         # Qwen2_5_processor = AutoProcessor.from_pretrained(args.Qwen2_5, min_pixels=min_pixels, max_pixels=max_pixels)
-        Qwen2_5_processor = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-3B-Instruct")
+        Qwen2_5_processor = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-7B-Instruct")
 
         return Qwen2_5, Qwen2_5_processor
 
