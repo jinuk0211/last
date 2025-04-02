@@ -1,4 +1,4 @@
-from model import qwen
+from model import qwen, LLM
 from mctstask import MCTS_Task
 from node import treeNode
 from mcts import selectNode, get_next_steps_expand, expand
@@ -18,7 +18,7 @@ from easydict import EasyDict
 
 
 def run(args):
-    os.environ["OPENAI_API_KEY"] = "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"
+    os.environ["OPENAI_API_KEY"] = 
     os.environ["OPENAI_API_BASE"] = "https://api.openai.com/v1/chat/completions" # Replace with your actual base
     api_key = os.getenv("OPENAI_API_KEY")
     api_base = os.getenv("OPENAI_API_BASE")    
@@ -27,7 +27,8 @@ def run(args):
         dataset_kwargs = {}
         dataset_name = args.dataset#"MathVista_MINI"
         dataset = build_dataset(dataset_name, **dataset_kwargs)
-        dataset.data = dataset.data.iloc[1:2]
+        print(f'전체 데이터셋 길이:{len(dataset.data)}')
+        dataset.data = dataset.data.iloc[:5]
         data_len = len(dataset.data)
     except Exception as e:
         print(f'File must be standardized json!\nError type:{e}\n')
@@ -35,6 +36,7 @@ def run(args):
     assert data_len > 0, "Data list is empty!\n"
 
     model, processor = qwen('Qwen2_5')
+    llm, tokenizer, model_dict = LLM('qwen')
     output_list = []
     correct_count = 0
     for i in range(len(dataset.data)):
@@ -51,23 +53,29 @@ def run(args):
                             args.roll_policy, args.roll_branch, args.roll_forward_steps, args.time_limit,
                             args.iteration_limit, args.exploration_constant, args.alpha, args.inf,
                             args.temperature, use_case_prompt=args.use_case_prompt, use_reflection=args.use_reflection,
-                            low=args.low, high=args.high, evaluate=args.evaluate,img_path=img)
+                            low=args.low, high=args.high, evaluate=args.evaluate,img_path=img,model_dict = model_dict)
         output, root = Task.run()
         print(output)
         # evaluate metrics
         if args.evaluate:
             dataset.data['prediction'] = output['summary']
-            dataset.data = dataset.data.drop(columns=['image'])
-        output_path = '/workspace/mcts/dataset.xlsx'
-        dataset.data.to_excel(output_path, index=False)
-        judge_kwargs = {
-            'nproc': 4,
-            'verbose': False,
-            'retry': 3,
-            'model': "gpt-4o-mini"}
+            pre = dataset.data.iloc[i]['prediction']
+            print(f'결과:{pre}\n')
+            gt = dataset.data.iloc[i]['answer']
+            print(f'ground truth:{gt}\n')
+            
+            
+    dataset.data = dataset.data.drop(columns=['image'])    
+    output_path = '/workspace/mcts/dataset.xlsx'
+    dataset.data.to_excel(output_path, index=False)
+    judge_kwargs = {
+        'nproc': 4,
+        'verbose': False,
+        'retry': 3,
+        'model': "gpt-4o-mini"}
 
-        eval_results = dataset.evaluate('/workspace/mcts/dataset.xlsx', **judge_kwargs)
-        print(eval_results)
+    eval_results = dataset.evaluate('/workspace/mcts/dataset.xlsx', **judge_kwargs)
+    print(eval_results)
         # output
 
     
@@ -128,34 +136,4 @@ if __name__ == "__main__":
     torch.cuda.empty_cache()
     args = get_args()
     run(args)
-    # dataset_kwargs = {}
-    # dataset_name = "MathVista_MINI"
-    # dataset = build_dataset(dataset_name, **dataset_kwargs)
-    
-    # print(args.task_name)
-
-    # # clip_model = CLIPModel.from_pretrained(args.clip_model_path)
-    # # clip_processor = AutoProcessor.from_pretrained(args.clip_model_path)
-    # data_len = len(dataset.data)
-    # # for i in range(len(dataset.data)):
-    # image = dataset.data.iloc[1]['image']
-    # dataset.dump_image(dataset.data.iloc[1])
-    # img_path = osp.join(dataset.img_root, f"{dataset.data.iloc[1]['index']}.jpg")
-    # question = dataset.data.iloc[1]['question']
-    # model, processor = qwen('Qwen2_5')
-    # task = MCTS_Task(question, model, processor, args.propose_method, args.value_method, args.branch, args.end_gate,
-    #                 args.roll_policy, args.roll_branch, args.roll_forward_steps, args.time_limit,
-    #                 args.iteration_limit, args.exploration_constant, args.alpha, args.inf,
-    #                 args.temperature, use_case_prompt=args.use_case_prompt, use_reflection=args.use_reflection,
-    #                 low=args.low, high=args.high, evaluate=args.evaluate, img_path ='/root/LMUData/images/MathVista_MINI/2.jpg')
-    # root = treeNode('')
-    # flag, node = selectNode(root, task)
-    # actions = get_next_steps_expand(node, task)
-    # print(actions)
-    # node = expand(node, task)
-    # reflection = task.get_simple_reflection(node.y, node.depth + 1)
-    # print(f'reflection:{reflection}')
-    # print(node.y)
-    # print(f'root.reflection:{root.reflection}')
-    # print(node.children)
-    # print(f'node.reflection:{node.reflection}')
+  

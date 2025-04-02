@@ -1,8 +1,40 @@
 import torch
 from transformers import Qwen2VLForConditionalGeneration, AutoTokenizer, AutoProcessor, Qwen2_5_VLForConditionalGeneration
+from transformers import AutoModelForCausalLM
 #  MllamaForConditionalGeneration
 from qwen_vl_utils import process_vision_info
+def LLM(model):
+    model_dict = {}
+    if model == 'qwen':
+        print('init llm model')       
+        model_name = "Qwen/Qwen2.5-7B-Instruct"
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype="auto",
+            device_map="auto"
+        )
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model_dict['model'] = model
+        model_dict['tokenizer'] = tokenizer
+        return model, tokenizer, model_dict
+def llm_proposal(model,tokenizer,prompt,model_name='qwen'):
+    if model_name =='qwen':
+        messages = [ {"role": "system", "content": "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."},
+            {"role": "user", "content": prompt}]
+        text = tokenizer.apply_chat_template(
+            messages, tokenize=False,
+            add_generation_prompt=True)
+        
+        model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
 
+        generated_ids = model.generate(
+            **model_inputs, max_new_tokens=512)
+        
+        generated_ids = [
+            output_ids[len(input_ids):] for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)]
+
+        response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        return response        
 def qwen(model):
 #Qwen/Qwen2.5-VL-7B-Instruct
     if model == 'Qwen2_5':

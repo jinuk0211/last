@@ -24,7 +24,7 @@ class MCTS_Task(SearchTask):
                  roll_branch=1, roll_forward_steps=3, time_limit=None, iteration_limit=3, exploration_constant=0.7,
                  alpha=0.5, inf=1.0, temperature=0.7, max_tokens=2048, seed=170, max_length=2048, truncation=True,
                  do_sample=True, max_new_tokens=256, use_case_prompt=False, use_reflection='simple', low=0, high=1,
-                 evaluate='', sample_value='simple', answer=None, verify_method='string', lang='en', weighted_verify=False, img_path=''):
+                 evaluate='', sample_value='simple', answer=None, verify_method='string', lang='en', weighted_verify=False, img_path='',model_dict=None):
         super().__init__(data, propose_method, value_method)
         assert 0 <= low < high, "Inappropriate value range!"
         self.model = model
@@ -61,7 +61,7 @@ class MCTS_Task(SearchTask):
         self.reward_model_type = 'vm'
         self.lang = lang
         self.weighted_verify = weighted_verify
-        
+        self.model_dict = model_dict
     def update_count(self):
         self.node_count += 1
         
@@ -98,12 +98,13 @@ class MCTS_Task(SearchTask):
                         if not response:
                             print('Failed to get the review!\n')
                             return ''
-                        p = ''
-                        for _ in response:
-                            p = p + _
-                        summ = p.strip()
-                        print(f'Failed to get the summary!:{summ}\n')
-                        summary = summ     #get_summary 끝부분
+                        # p = ''
+                        # for _ in response:
+                        #     p = p + _
+                        # summ = p.strip()
+                        print(f'math_summary_prompt에 의한 결과:{response}\n')
+                        summary =response.split("The final answer is")[-1].strip()
+                            #get_summary 끝부분
                     final_answer = {'content': self.question, 'solution': solution, 'summary': summary,
                                     'finish': finish}
                     if self.sample_value == 'simple':
@@ -156,10 +157,10 @@ class MCTS_Task(SearchTask):
         
         if response.startswith("Next step: "):  
             stp = response[len("Next step: "):]  # "Next step: " 길이만큼 잘라냄
+            revised_ = 'Step ' + str(step_n-1) + ': ' + stp
         else:
             stp = response  # "Next step: "이 없으면 그대로 유지
-
-        revised_ = 'Step ' + str(step_n) + ': ' + stp
+            revised_ = stp
         print(f'revised 이후의 step: {revised_}\n')
         return revised_ + '\n'
 
@@ -194,7 +195,7 @@ class MCTS_Task(SearchTask):
                 print('输出步骤重复！\n')
                 return ''
 
-            revised_ = 'Step ' + str(step_n) + ': ' + stp
+            revised_ = 'Step ' + str(step_n-1) + ': ' + stp
             print(f'标准化后新的步骤:{revised_}\n')
             return revised_ + '\n'
 
@@ -210,7 +211,7 @@ class MCTS_Task(SearchTask):
                 print('输出步骤重复！\n')
                 return ''
 
-            revised_ = 'Step ' + str(step_n) + ': ' + p_
+            revised_ = 'Step ' + str(step_n-1) + ': ' + p_
             print(f'标准化后新的步骤:{revised_}\n')
             return revised_ + '\n'
 
@@ -235,13 +236,14 @@ class MCTS_Task(SearchTask):
           while not response and cnt:
               response = get_proposal(self.model, self.processor, reflection_prompt,self.img_path)
               cnt -= 1
+                  
         except Exception as e:
           print(f'obtain<{self.propose_method}>reflection fail!\nError:{e}\n')
           return ''
         # if not response:
         #     print('获得意见失败！\n')
         #     return '<end>'
-
+        print(f'reflection 결과:{response}')
         p = ''
         for _ in response:
             p = p + _ + ' '
@@ -250,13 +252,13 @@ class MCTS_Task(SearchTask):
        
         
         if 'unsolved' in p or step_n <= 1:
-            print('标准化后的意见: <continue>\n')
+            print('revised된 reflection: <continue>\n')
             return '<continue>'
         elif 'solved' in p:
-            print('标准化后的意见: <end>\n')
+            print('revised된 reflection: <end>\n')
             return '<end>'
         else:
-            print('标准化后的意见: <continue>\n')
+            print('revised된 reflection: <continue>\n')
             return '<continue>'
 
     def get_reflection(self, y, step_n):
@@ -288,32 +290,18 @@ class MCTS_Task(SearchTask):
             p = p + _ + ' '
         p = p.strip()
 
-        if self.lang == 'zh':
-            if '已解决' in p or '已经解决' in p:
-                if step_n > 1:
-                    print('此步问题已解决，停止下探。\n')
-                    return '<end>'
-                else:
-                    return ''
-
-            if '意见:' not in p:
+       
+ 
+        if 'Problem solved' in p:
+            print('revised된 reflection: <end>\n')
+            return '<end>'
+        else:
+            if 'Analysis:' not in p:
                 print('输出格式有误！\n')
                 return ''
-            revised_ = p.split('意见:')[1]
-            print(f'标准化后的意见:{revised_}\n')
+            revised_ = p.split('Analysis:')[1].strip()
+            print(f'revised된 reflection:{revised_}\n')
             return revised_
-
-        else:
-            if 'Problem solved' in p:
-                print('标准化后的意见: <end>\n')
-                return '<end>'
-            else:
-                if 'Analysis:' not in p:
-                    print('输出格式有误！\n')
-                    return ''
-                revised_ = p.split('Analysis:')[1].strip()
-                print(f'标准化后的意见:{revised_}\n')
-                return revised_
 
 
     def get_summary(self, y):
@@ -489,8 +477,9 @@ class MCTS_Task(SearchTask):
             return solution, summ
 
     def get_step_value(self, y, action):
+        print(' get step value 함수 시작\n')
         print(f'y:{y}\n')
-        print(f'action:{action}')
+        # print(f'action:{action}')
         if y in self.value_cache.keys():
             return self.value_cache[y]
         prompt_answer = 'Problem: ' + self.question + '\nSolution:\n' + y
@@ -500,23 +489,26 @@ class MCTS_Task(SearchTask):
         else:
             lmm_prompt = self.value_prompt_wrap(self.question, y) 
         llm_prompt = self.llm_prompt(self.question, y)
-        if self.value_method == 'local_prm': #clip, prm + llm + prm
-            confidence, value_score = get_value(self.model,self.processor, prompt_answer, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
-            value = (1-self.alpha)*confidence + self.alpha*value_score
-            print(f'value:{value}\n') #评分
-            self.value_cache.update({y: value})
-            return value
+        # if self.value_method == 'local_prm': #clip, prm + llm + prm
+        #     confidence, value_score = get_value(self.model,self.processor, prompt_answer, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
+        #     value = (1-self.alpha)*confidence + self.alpha*value_score
+        #     print(f'value:{value}\n') #评分
+        #     self.value_cache.update({y: value})
+        #     return value
+        # llm = self.model_dict['model']
+        # tokenizer = self.model_dict['tokenizer']
+        from model import llm_proposal
+        llm_response = llm_proposal(self.model_dict['model'],self.model_dict['tokenizer'],llm_prompt)
 
 
-        else: #qwen, llama3 등의 lmm
-            # confidence, response = get_value(prompt, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
-            
-            response = get_value(self.model,self.processor, prompt_answer, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
-            value = self.value_outputs_unwrap(response, self.low, self.high)
-            # value = (1-self.alpha)*confidence + self.alpha*value
-            print(f'unwrap된 value:{value}\n') #평가받기
-            self.value_cache.update({y: value})
-            return value
+        # else: 
+        response = get_value(self.model,self.processor, prompt_answer, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
+        value = self.value_outputs_unwrap(response, self.low, 10.0)
+        # value = (1-self.alpha)*confidence + self.alpha*value
+        print(f'unwrap된 value:{value}\n') #평가받기
+        print(' get step value 함수 끝\n')
+        self.value_cache.update({y: value})
+        return value
 
 # clip_model = CLIPModel.from_pretrained('openai/clip-vit-large-patch14-336')
 # clip_processor = AutoProcessor.from_pretrained('openai/clip-vit-large-patch14-336')
