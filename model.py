@@ -1,6 +1,6 @@
 import torch
 from transformers import Qwen2VLForConditionalGeneration, AutoTokenizer, AutoProcessor, Qwen2_5_VLForConditionalGeneration
-from transformers import AutoModelForCausalLM
+from transformers import AutoModelForCausalLM, MllamaForConditionalGeneration
 #  MllamaForConditionalGeneration
 from qwen_vl_utils import process_vision_info
 def LLM(model):
@@ -34,7 +34,19 @@ def llm_proposal(model,tokenizer,prompt,model_name='qwen'):
             output_ids[len(input_ids):] for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)]
 
         response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        return response        
+        return response   
+def llama(model):
+    if model == 'llama':
+        print('init llama 3.2 vision 11b model')
+        model_id = "meta-llama/Llama-3.2-11B-Vision-Instruct"
+        model = MllamaForConditionalGeneration.from_pretrained(
+            model_id,
+            torch_dtype=torch.bfloat16,
+            device_map="auto",
+        )
+        processor = AutoProcessor.from_pretrained(model_id)
+        return model, processor
+
 def qwen(model):
 #Qwen/Qwen2.5-VL-7B-Instruct
     if model == 'Qwen2_5':
@@ -43,10 +55,10 @@ def qwen(model):
             'Qwen/Qwen2.5-VL-7B-Instruct', torch_dtype=torch.bfloat16, device_map="auto", 
             # attn_implementation='flash_attention_2',
         )
-        # min_pixels = 256*28*28
-        # max_pixels = 1280*28*28
-        # Qwen2_5_processor = AutoProcessor.from_pretrained(args.Qwen2_5, min_pixels=min_pixels, max_pixels=max_pixels)
-        Qwen2_5_processor = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-7B-Instruct")
+        min_pixels = 256*28*28
+        max_pixels = 1280*28*28
+        Qwen2_5_processor = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-7B-Instruct", min_pixels=min_pixels, max_pixels=max_pixels)
+        # Qwen2_5_processor = AutoProcessor.from_pretrained()
 
         return Qwen2_5, Qwen2_5_processor
 
