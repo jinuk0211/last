@@ -1,4 +1,4 @@
-from model import qwen, LLM
+from model import qwen, LLM, llama
 from mctstask import MCTS_Task
 from node import treeNode
 from mcts import selectNode, get_next_steps_expand, expand
@@ -34,8 +34,8 @@ def run(args):
         print(f'File must be standardized json!\nError type:{e}\n')
         return
     assert data_len > 0, "Data list is empty!\n"
-
-    model, processor = qwen('Qwen2_5')
+    model, processor = llama('llama')
+    # model, processor = qwen('Qwen2_5')
     llm, tokenizer, model_dict = LLM('qwen')
     output_list = []
     correct_count = 0
