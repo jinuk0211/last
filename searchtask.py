@@ -28,7 +28,7 @@ class SearchTask(object):
     def image_description(x,y):
         print('\n', '==============================', 'image description', '==============================', '\n')
 
-        prompt = image_description_prompt + x
+        prompt = image_description_prompt 
         return prompt        
     @staticmethod
     def llm_prompt(x,y):

@@ -1,3 +1,4 @@
+from PIL import Image
 import torch
 from transformers import Qwen2VLForConditionalGeneration, AutoTokenizer, AutoProcessor, Qwen2_5_VLForConditionalGeneration
 from transformers import AutoModelForCausalLM, MllamaForConditionalGeneration
@@ -117,10 +118,15 @@ def get_proposal(model, processor, prompt, img_path, model_name ='llama'):
             return_tensors="pt"
         ).to(model.device)
 
-        output = model.generate(**inputs, max_new_tokens=30)
-        print(processor.decode(output[0]))
-        return output[0]     
+        output = model.generate(**inputs, max_new_tokens=70)
+        output_text = processor.decode(output[0])
+        split_text = output_text.split("<|end_header_id|>", 2)  # 최대 2번만 분할
 
+        # 두 번째 "<|end_header_id|>" 이후 부분 가져오기 (있다면)
+        cleaned_text = split_text[2].strip()
+        print('get_proposal:최종 텍스트:')
+        print(cleaned_text)
+        return cleaned_text
 
 
 
