@@ -1,9 +1,10 @@
 from model import qwen, LLM, llama
+
+from vlmeval.dataset import build_dataset
 from mctstask import MCTS_Task
 from node import treeNode
 from mcts import selectNode, get_next_steps_expand, expand
 
-from vlmeval.dataset import build_dataset
 import torch
 import os
 import os.path as osp
@@ -80,7 +81,11 @@ def run(args):
 
     
 
-
+import torch
+from transformers import Qwen2VLForConditionalGeneration, AutoTokenizer, AutoProcessor, Qwen2_5_VLForConditionalGeneration
+from transformers import AutoModelForCausalLM, MllamaForConditionalGeneration
+#  MllamaForConditionalGeneration
+from qwen_vl_utils import process_vision_info
 
 def get_args():
     args = EasyDict({
