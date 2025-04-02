@@ -96,13 +96,14 @@ def get_args():
         'mode': 'mcts',  # choices: ['cot', 'tot', 'mcts']
         'temperature': 0.7,
         'time_limit': None,
-        'iteration_limit': 2,
+        'iteration_limit': 3,
+        'roll_forward_steps': 2,
+        'roll_branch': 2,
         'roll_policy': 'greedy',  # choices: ['random', 'greedy']
         'exploration_constant': 0.4,
-        'roll_forward_steps': 2,
-        'end_gate': 0.9,  # End threshold
+        'end_gate': 9.0,  # End threshold
         'branch': 3,
-        'roll_branch': 1,
+        
         'inf': 0.8,
         'evaluate': 'mathvista',  # Empty string means no evaluation
         'alpha': 0.5,

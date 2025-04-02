@@ -85,7 +85,7 @@
 llm_prompt = """Evaluate the given solution (not necessarily complete) based on the clarity, coherence, and correctness of the logical reasoning process. Assess whether the steps follow a structured, step-by-step approach, ensuring that intermediate steps are neither skipped nor incorrect. Consider whether assumptions are clearly stated, conclusions logically follow from premises, and the response adheres to formal rules in mathematical proofs or coding logic. 
 
 Provide only decimal score between 0 and 10. The output format is limited to: "Score:..." where ... represents the omitted output content, which you need to fill in.
-Here is the input you should score
+Here is the input you should score.
 Input: 
 Problem:"""
 
