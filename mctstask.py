@@ -138,7 +138,7 @@ class MCTS_Task(SearchTask):
         prompt = self.image_description(self.question, y)
         response = get_proposal(self.model, self.processor, prompt,self.img_path)
         print(f'처음 생성된 응답:{response}\n')
-        return response + '\n'
+        return 'Image Description' + response + '\n'
     
     def get_next_step(self, y, step_n):
 

@@ -125,7 +125,8 @@ Problem: '''
 # Here is the input, please follow the restricted output format.
 # Given problem:
 # '''
-image_description_prompt = '''generate image description based on given image. the otput format is limited to "Image Description:..." where ... represents the output result, which you should fill in.'''
+
+image_description_prompt = '''generate image description based on given image.'''
 
 zero_single_proposal_prompt_en = '''
 Your task is to give the correct next step, given image, problem, image description and an existing partial solution (not a complete answer).
