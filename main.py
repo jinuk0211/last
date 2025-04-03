@@ -67,7 +67,7 @@ def run(args):
             
             
     dataset.data = dataset.data.drop(columns=['image'])    
-    output_path = '/workspace/mcts/dataset.xlsx'
+    output_path = '/workspace/last/dataset.xlsx'
     dataset.data.to_excel(output_path, index=False)
     judge_kwargs = {
         'nproc': 4,
@@ -75,7 +75,7 @@ def run(args):
         'retry': 3,
         'model': "gpt-4o-mini"}
 
-    eval_results = dataset.evaluate('/workspace/mcts/dataset.xlsx', **judge_kwargs)
+    eval_results = dataset.evaluate('/workspace/last/dataset.xlsx', **judge_kwargs)
     print(eval_results)
         # output
 

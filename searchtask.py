@@ -22,7 +22,8 @@ class SearchTask(object):
     @staticmethod
     def image_description_score(x,y):
         print('\n', '==============================', 'image description score', '==============================', '\n')
-        prompt = image_description_score + x + "\n" +y
+        # prompt = image_description_score + x + "\n" +y
+        prompt = image_description_score + "\n" +y
         return prompt
     @staticmethod
     def image_description(x,y):

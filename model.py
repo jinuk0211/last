@@ -118,7 +118,7 @@ def get_proposal(model, processor, prompt, img_path, model_name ='llama'):
             return_tensors="pt"
         ).to(model.device)
 
-        output = model.generate(**inputs, max_new_tokens=70)
+        output = model.generate(**inputs, max_new_tokens=100)
         output_text = processor.decode(output[0])
         split_text = output_text.split("<|end_header_id|>", 2)  # 최대 2번만 분할
 
