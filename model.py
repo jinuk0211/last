@@ -18,6 +18,24 @@ def LLM(model):
         model_dict['model'] = model
         model_dict['tokenizer'] = tokenizer
         return model, tokenizer, model_dict
+    if model == 'all'
+        print('init llm model')       
+        model_name = "Qwen/Qwen2.5-7B-Instruct"
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype="auto",
+            device_map="auto"
+        )
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model_dict['model'] = model
+        model_dict['tokenizer'] = tokenizer
+        print('init clip model')                   
+        clip_model = CLIPModel.from_pretrained('openai/clip-vit-large-patch14-336')
+        clip_processor = AutoProcessor.from_pretrained('openai/clip-vit-large-patch14-336')     
+        model_dict['clip'] = clip_model
+        model_dict['clip_processor'] = clip_processor
+
+        return model, tokenizer, model_dict   
 def llm_proposal(model,tokenizer,prompt,model_name='qwen'):
     if model_name =='qwen':
         messages = [ {"role": "system", "content": "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."},
@@ -62,7 +80,16 @@ def qwen(model):
         # Qwen2_5_processor = AutoProcessor.from_pretrained()
 
         return Qwen2_5, Qwen2_5_processor
-
+def get_clip_score(new_text, image, model, processor):
+    if not new_text:
+        return None
+    image = Image.open(img_path)
+    inputs = processor(text=[new_text], images=image, return_tensors="pt", padding=True).to(model.device)
+    with torch.no_grad():
+        outputs = model(**inputs)
+    logits_per_image = outputs.logits_per_image
+    clip_score = logits_per_image.cpu().detach().numpy()[0][0]
+    return clip_score
 
 def get_proposal(model, processor, prompt, img_path, model_name ='llama'):
     #temperature=0.7, max_tokens=2048, seed=170, max_length=2048, truncation=True,do_sample=True, max_new_tokens=1024

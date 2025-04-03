@@ -487,47 +487,45 @@ class MCTS_Task(SearchTask):
         if 'Image Description' in action:
             print('image description에 대한 value 생성중')
             lmm_prompt = self.image_description_score(self.question, y)
+            response = get_value(self.model,self.processor, prompt_answer, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
+            value = self.value_outputs_unwrap(response, self.low, 10.0)
+            # value = (1-self.alpha)*confidence + self.alpha*value
+            print(f'unwrap된 value:{value}\n') #평가받기
+            print(' get step value 함수 끝\n')
+            # from model import get_clip_score
+            # clip_score = get_clip_score(action,self.img_path,model_dict['clip'],model_dict['clip_processor'])
+            #   def get_clip_score(new_text, image, model, processor):
+            self.value_cache.update({y: value})
+            # return llm_value* 0.5 + value * 0.5
+            return value
         else:
             lmm_prompt = self.value_prompt_wrap(self.question, y) 
-        llm_prompt = self.llm_prompt(self.question, y)
+            llm_prompt = self.llm_prompt(self.question, y)
+            response = get_value(self.model,self.processor, prompt_answer, lmm_prompt, action, self.value_method, img_path=self.img_path)
+            value = self.value_outputs_unwrap(response, self.low, 10.0)
+        # from model import llm_proposal
+        # llm_response = llm_proposal(self.model_dict['model'],self.model_dict['tokenizer'],llm_prompt)
+        # llm_value = self.value_outputs_unwrap(llm_response, self.low, 10.0)    
+        # print(f'unwrap된 llm value:{llm_value}\n')                
+            print(f'unwrap된 value:{value}\n') #평가받기
+            print(' get step value 함수 끝\n')
+            self.value_cache.update({y: value})
+            # return llm_value* 0.5 + value * 0.5
+            return value            
         # if self.value_method == 'local_prm': #clip, prm + llm + prm
         #     confidence, value_score = get_value(self.model,self.processor, prompt_answer, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
         #     value = (1-self.alpha)*confidence + self.alpha*value_score
         #     print(f'value:{value}\n') #评分
         #     self.value_cache.update({y: value})
         #     return value
-        # llm = self.model_dict['model']
-        # tokenizer = self.model_dict['tokenizer']
-        # from model import llm_proposal
-        # llm_response = llm_proposal(self.model_dict['model'],self.model_dict['tokenizer'],llm_prompt)
-        # llm_value = self.value_outputs_unwrap(llm_response, self.low, 10.0)
-        # print(f'unwrap된 llm value:{llm_value}\n')
 
-        # else: 
-        response = get_value(self.model,self.processor, prompt_answer, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
-        value = self.value_outputs_unwrap(response, self.low, 10.0)
-        # value = (1-self.alpha)*confidence + self.alpha*value
-        print(f'unwrap된 value:{value}\n') #평가받기
-        print(' get step value 함수 끝\n')
-        self.value_cache.update({y: value})
-        # return llm_value* 0.5 + value * 0.5
-        return value
 
+  
 # clip_model = CLIPModel.from_pretrained('openai/clip-vit-large-patch14-336')
 # clip_processor = AutoProcessor.from_pretrained('openai/clip-vit-large-patch14-336')
 
-# def get_clip_score(new_text, image, model, processor):
-#   if not new_text:
-#       return None
-#   image = Image.open(img_path)
-#   inputs = processor(text=[new_text], images=image, return_tensors="pt", padding=True).to(model.device)
-#   with torch.no_grad():
-#       outputs = model(**inputs)
-#   logits_per_image = outputs.logits_per_image
-#   clip_score = logits_per_image.cpu().detach().numpy()[0][0]
-#   return clip_score
 
-def get_value(model, processor, prompt, llm_prompt, lmm_prompt, action, value_method, img_path):
+def get_value(model, processor, prompt, lmm_prompt, action, value_method, img_path):
     response = []
     cnt = 2
     if 'Image Description' in action:
