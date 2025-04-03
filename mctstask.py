@@ -481,6 +481,7 @@ class MCTS_Task(SearchTask):
         print(f'y:{y}\n')
         # print(f'action:{action}')
         if y in self.value_cache.keys():
+            print('캐시 value 사용됨\n')
             return self.value_cache[y]
         prompt_answer = 'Problem: ' + self.question + '\nSolution:\n' + y
         if 'Image Description' in action:
