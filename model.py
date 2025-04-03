@@ -90,7 +90,7 @@ def get_proposal(model, processor, prompt, img_path, model_name ='llama'):
             inputs = inputs.to("cuda")
 
             # Inference: Generation of the output
-            generated_ids = model.generate(**inputs, max_new_tokens=128)
+            generated_ids = model.generate(**inputs, max_new_tokens=512)
             generated_ids_trimmed = [
                 out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
             ]
@@ -118,7 +118,7 @@ def get_proposal(model, processor, prompt, img_path, model_name ='llama'):
             return_tensors="pt"
         ).to(model.device)
 
-        output = model.generate(**inputs, max_new_tokens=100)
+        output = model.generate(**inputs, max_new_tokens=512)
         output_text = processor.decode(output[0])
         split_text = output_text.split("<|end_header_id|>", 2)  # 최대 2번만 분할
 
