@@ -138,7 +138,7 @@ class MCTS_Task(SearchTask):
         prompt = self.image_description(self.question, y)
         response = get_proposal(self.model, self.processor, prompt,self.img_path)
         print(f'처음 생성된 응답:{response}\n')
-        return 'Image Description' + response + '\n'
+        return 'Image Description: ' + response + '\n'
     
     def get_next_step(self, y, step_n):
 
@@ -497,10 +497,10 @@ class MCTS_Task(SearchTask):
         #     return value
         # llm = self.model_dict['model']
         # tokenizer = self.model_dict['tokenizer']
-        from model import llm_proposal
-        llm_response = llm_proposal(self.model_dict['model'],self.model_dict['tokenizer'],llm_prompt)
-        llm_value = self.value_outputs_unwrap(llm_response, self.low, 10.0)
-        print(f'unwrap된 llm value:{llm_value}\n')
+        # from model import llm_proposal
+        # llm_response = llm_proposal(self.model_dict['model'],self.model_dict['tokenizer'],llm_prompt)
+        # llm_value = self.value_outputs_unwrap(llm_response, self.low, 10.0)
+        # print(f'unwrap된 llm value:{llm_value}\n')
 
         # else: 
         response = get_value(self.model,self.processor, prompt_answer, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
@@ -509,7 +509,8 @@ class MCTS_Task(SearchTask):
         print(f'unwrap된 value:{value}\n') #평가받기
         print(' get step value 함수 끝\n')
         self.value_cache.update({y: value})
-        return llm_value* 0.5 + value * 0.5
+        # return llm_value* 0.5 + value * 0.5
+        return value
 
 # clip_model = CLIPModel.from_pretrained('openai/clip-vit-large-patch14-336')
 # clip_processor = AutoProcessor.from_pretrained('openai/clip-vit-large-patch14-336')
