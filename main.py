@@ -96,9 +96,9 @@ def get_args():
         'mode': 'mcts',  # choices: ['cot', 'tot', 'mcts']
         'temperature': 0.7,
         'time_limit': None,
-        'iteration_limit': 3,
-        'roll_forward_steps': 2,
-        'roll_branch': 2,
+        'iteration_limit': 5,
+        'roll_forward_steps': 2, #2단계 simulation
+        'roll_branch': 2, #다음 step에서 몇개의 step을 생성할지
         'roll_policy': 'greedy',  # choices: ['random', 'greedy']
         'exploration_constant': 0.4,
         'end_gate': 9.0,  # End threshold
