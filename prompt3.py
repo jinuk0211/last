@@ -46,13 +46,13 @@ Problem: '''
 # Given problem:
 # '''
 
-image_description_prompt = '''generate image description based on given image.'''
+image_description_prompt = '''generate simple and accurate image description based on given image.'''
 
 zero_single_proposal_prompt_en = '''
-Your task is to give the correct next step, given image, problem, image description and an existing partial solution (not a complete answer).
+Given image, image description and an existing partial solution (not a complete answer), generate the correct next step to solve the problem
 The output format is limited to:
 "Next step: ..."
-where ... indicates the part you should fill in. Your output should be a one complete reasoning step
+where ... indicates the part you should fill in. Your output should be a one complete reasoning step to solve the problem
 Here is the input, please follow the restricted output format. 
 
 Problem: '''
