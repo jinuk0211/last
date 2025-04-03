@@ -23,6 +23,8 @@ class SearchTask(object):
     def image_description_score(x,y):
         print('\n', '==============================', 'image description score', '==============================', '\n')
         # prompt = image_description_score + x + "\n" +y
+        if "<|eot_id|>" in y:
+            y = y.replace("<|eot_id|>", "")        
         prompt = image_description_score + "\n" +y
         return prompt
     @staticmethod
@@ -89,6 +91,8 @@ class SearchTask(object):
     def single_propose_prompt_wrap(x: str, y: str = '', step: int = 0) -> str:
         print('\n', '==============================', 'single_propose_prompt_wrap', '==============================', '\nstep: ', step)
         print('single_propose_prompt: \n', x + '\n' + y + '\n')
+        if "<|eot_id|>" in y:
+            y = y.replace("<|eot_id|>", "")             
         prompt = single_proposal_prompt + x + y + '\noutput:'
         return prompt
 
@@ -151,14 +155,14 @@ class SearchTask(object):
         if 'Score' not in value_outputs:
             print('점수 출력이 올바르지 않습니다 value_outputs_unwrap\n')
         try:        
-        # try:
-        #     out_value = float(value_outputs.split(":")[1])
-        #     print(f'split 된 value:{out_value}')
-        #     out_value = min(max(low, out_value), high)
+            if "<|eot_id|>" in value_outputs:
+                value_outputs = value_outputs.replace("<|eot_id|>", "")
             out_value = float(value_outputs.split(":")[1].strip())
             out_value = min(max(low, out_value), high)
         except Exception as e:
             print(f'점수 출력에 오류가 있습니다! 오류 유형:{e}\n')
             return low
         print(f'최종:{out_value,type(out_value)}')
+        if "<|eot_id|>" in out_value:
+            out_value = out_value.replace("<|eot_id|>", "")
         return out_value

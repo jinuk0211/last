@@ -124,6 +124,7 @@ def get_proposal(model, processor, prompt, img_path, model_name ='llama'):
 
         # 두 번째 "<|end_header_id|>" 이후 부분 가져오기 (있다면)
         cleaned_text = split_text[2].strip()
+        cleaned_text = cleaned_text.replace("<|eot_id|>", "")
         print('get_proposal:최종 텍스트:')
         print(cleaned_text)
         return cleaned_text
