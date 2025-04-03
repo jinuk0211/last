@@ -56,7 +56,17 @@ def run(args):
                             args.temperature, use_case_prompt=args.use_case_prompt, use_reflection=args.use_reflection,
                             low=args.low, high=args.high, evaluate=args.evaluate,img_path=img)
         output, root = Task.run()
-        print(output)
+        print('content:')
+        print(output['content'])
+        print('\nsolution:')
+        print(output['solution'])
+        print('\nsummary:')
+        print(output['summary'])
+        sorted_samples = sorted(output['value_samples'], key=lambda x: x['value'], reverse=True)
+        second_highest_steps = sorted_samples[1]['steps']
+        if len(sorted_samples) > 1:
+            print('\nsecond_solution:')
+            print(second_highest_steps)
         # evaluate metrics
         if args.evaluate:
             dataset.data['prediction'] = output['summary']
@@ -66,9 +76,11 @@ def run(args):
             print(f'ground truth:{gt}\n')
             
             
-    dataset.data = dataset.data.drop(columns=['image'])    
+            
+    dataset.data = dataset.data.drop(columns=['image'])  
     output_path = '/workspace/last/dataset.xlsx'
     dataset.data.to_excel(output_path, index=False)
+
     judge_kwargs = {
         'nproc': 4,
         'verbose': False,
@@ -76,7 +88,12 @@ def run(args):
         'model': "gpt-4o-mini"}
 
     eval_results = dataset.evaluate('/workspace/last/dataset.xlsx', **judge_kwargs)
+    if True:
+        dataset.data['solution'] = output['solution']
+        output_path = '/workspace/last/dataset_include_solution.xlsx'
+        dataset.data.to_excel(output_path, index=False)
     print(eval_results)
+
         # output
 
     
