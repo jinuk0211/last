@@ -57,7 +57,7 @@ class SearchTask(object):
         Problem: '''
 
         print('\n', '==============================', 'summary', '==============================', '\n')
-        print('math_summary_prompt: \n', x + '\n' + y + 'The summary based on the reasoning steps i:\n')
+        print('math_summary_prompt 대상:' + y + '\n\n')
         prompt = MATH_summary_prompt + x + '\nSolution: ' + y + '\nExtracted answer:'
         return prompt
 
@@ -71,7 +71,7 @@ class SearchTask(object):
         Given problem:'''
 
         print('\n', '==============================', 'summary', '==============================', '\n')
-        print('general_summary_prompt: \n', x + '\n' + y + 'The summary based on the reasoning steps i:\n')
+        print('summary할 solution:' + y + '\n\n')
         prompt = general_evaluate_summary_prompt + x + '\n' + y + '\noutput:'
         return prompt
 
@@ -87,35 +87,28 @@ class SearchTask(object):
 
 
 
-    @staticmethod
-    def single_propose_prompt_wrap(x: str, y: str = '', step: int = 0) -> str:
-        print('\n', '==============================', 'single_propose_prompt_wrap', '==============================', '\nstep: ', step)
-        print('single_propose_prompt: \n', x + '\n' + y + '\n')
-        if "<|eot_id|>" in y:
-            y = y.replace("<|eot_id|>", "")             
-        prompt = single_proposal_prompt + x + y + '\noutput:'
-        return prompt
-
-
     # @staticmethod
-    # def zero_single_propose_wrap(x: str, y: str = '', step: int = 0, lang: str = 'zh') -> str:
-    #     print('\n', '==============================', 'zero_single_propose_wrap', '==============================', '\nstep: ', step)
-    #     print('프롬프트: \n', x + '\n' + y + '\n 프롬프트 끝')
-    #     if not y:
-    #         y = 'None\n'
-    #     prompt = zero_single_proposal_prompt_en + x + '\n' + y + '\nOutput:'
+    # def single_propose_prompt_wrap(x: str, y: str = '', step: int = 0) -> str:
+    #     print('\n', '==============================', 'single_propose_prompt_wrap', '==============================', '\nstep: ', step)
+    #     print('single_propose_prompt: \n', x + '\n' + y + '\n')
+    #     if "<|eot_id|>" in y:
+    #         y = y.replace("<|eot_id|>", "")             
+    #     prompt = single_proposal_prompt + x + y + '\noutput:'
     #     return prompt
 
 
     @staticmethod
     def zero_single_propose_wrap(x: str, y: str = '', step: int = 0, lang: str = 'zh') -> str:
         print('\n', '==============================', 'zero_single_propose_wrap', '==============================', '\nstep: ', step)
-        print('\n프롬프트: \n', x + '\n' + y + '\n 프롬프트 끝\n')
-        if not y:
-            y = 'None\n'
-        prompt = zero_single_proposal_prompt_en.format(x,y) 
+        print('프롬프트 \n 이전 solution:'+ y + '\n 프롬프트 끝\n\n')
+
+        if "<|eot_id|>" in y:
+            y = y.replace("<|eot_id|>", "")                   
+        prompt = zero_single_proposal_prompt_en + x + '\n' + y 
         return prompt
 
+
+ 
 
    
 
@@ -143,7 +136,7 @@ class SearchTask(object):
     @staticmethod
     def value_prompt_wrap(x: str, y: str) -> str:
         print('\n', '==============================', 'value_prompt', '==============================', '\n')
-        value_prompt = critic_simplified + x + '\n' + y.strip() + '\noutput:'
+        value_prompt = x + '\n' + y.strip() + critic_simplified
         return value_prompt
 
 
@@ -157,12 +150,18 @@ class SearchTask(object):
         try:        
             if "<|eot_id|>" in value_outputs:
                 value_outputs = value_outputs.replace("<|eot_id|>", "")
-            out_value = float(value_outputs.split(":")[1].strip())
-            out_value = min(max(low, out_value), high)
+            
+            if '**Score:**' in value_outputs:
+                number = re.search(r"[-+]?\d*\.?\d+", value_outputs)  # 정수 및 소수 지원
+                if number:
+                    out_value = number.group()
+                    out_value = float(out_value)
+            else: 
+                out_value = float(value_outputs.split(":")[1].strip())
+                out_value = min(max(low, out_value), high)
         except Exception as e:
             print(f'점수 출력에 오류가 있습니다! 오류 유형:{e}\n')
             return low
         print(f'최종:{out_value,type(out_value)}')
-        if "<|eot_id|>" in out_value:
-            out_value = out_value.replace("<|eot_id|>", "")
-        return out_value
+
+        return out_value   
