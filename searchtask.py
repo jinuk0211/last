@@ -130,7 +130,7 @@ class SearchTask(object):
         if lang == 'en':
             if not y:
                 y = 'None\n'
-            prompt = single_reflection_prompt_simple_en + x + '\n' + y
+            prompt = x + '\n' + y + single_reflection_prompt_simple_en 
         return prompt
 
     @staticmethod

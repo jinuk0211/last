@@ -14,12 +14,11 @@ Here is the image description, Only generate the decimal score and follow the re
 Input:
 '''
 
-critic_simplified = '''Given problem, image, image description, evaluate whether the reasoning steps can solve the provided problem and output a score. The score should be a decimal between 0 and 10. If all the steps are correct and the answer is calculated, the score is 10. The closer the steps are to the final answer, the closer the score is to 10.
-Now, given a problem, image, image description and the provided steps, provide only the decimal score and the scoring should be entirely based on the input image, image description,reasoning steps provided.
+critic_simplified = '''Given problem, image, image description, evaluate whether the reasoning steps can solve the provided problem and output a score. The score should be a decimal between 0 and 10. If all the steps are correct and the answer is calculated, the score is 10. The closer the steps are to the final answer, the closer the score is to 10. If there is no correct answer, never give a score higher than 9."
+Now, given a problem, image, image description and the provided steps, provide only the decimal score entirely based on the input image, image description,reasoning steps provided.
 The output format is limited to: "Score:...", where ... represents the omitted decimal score, which you need to fill in.
-
-Input:
-Problem: '''
+Follow the output format.
+'''
 
 single_reflection_prompt_simple_en = '''
 You are an expert in math. Given a problem, image, image description and reasoning steps (not necessarily complete) to answer it, you need to determine whether the given steps have completely solved the problem.
@@ -37,7 +36,7 @@ Problem: '''
 # Given problem:
 # '''
 
-image_description_prompt = "Generate a very simple and accurate image description based on the given image."
+image_description_prompt = "Generate a very simple, short and accurate image description based on the given image."
 
 zero_single_proposal_prompt_en = '''
 Given image, image description and an existing partial solution (not a complete answer), generate the correct next step to solve the problem

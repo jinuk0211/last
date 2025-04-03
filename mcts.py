@@ -7,8 +7,8 @@ import random
 import time
 def isTerminal(node, mcts_task):
     if mcts_task.reward_model_type == 'vm':
-        return node.V >= 9.0
-    else:
+        return node.V >= 9.3
+    else
         return False
     
 def getBestChild(node, mcts_task):
