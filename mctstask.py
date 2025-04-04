@@ -487,7 +487,7 @@ class MCTS_Task(SearchTask):
         if 'Image Description' in action:
             print('image description에 대한 value 생성중')
             lmm_prompt = self.image_description_score(self.question, y)
-            response = get_value(self.model,self.processor, prompt_answer, llm_prompt, lmm_prompt, action, self.value_method, img_path=self.img_path)
+            response = get_value(self.model,self.processor, prompt_answer, lmm_prompt, action, self.value_method, img_path=self.img_path)
             value = self.value_outputs_unwrap(response, self.low, 10.0)
             # value = (1-self.alpha)*confidence + self.alpha*value
             print(f'unwrap된 value:{value}\n') #평가받기

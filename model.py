@@ -18,7 +18,7 @@ def LLM(model):
         model_dict['model'] = model
         model_dict['tokenizer'] = tokenizer
         return model, tokenizer, model_dict
-    if model == 'all'
+    if model == 'all':
         print('init llm model')       
         model_name = "Qwen/Qwen2.5-7B-Instruct"
         model = AutoModelForCausalLM.from_pretrained(
