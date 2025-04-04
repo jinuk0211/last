@@ -69,7 +69,20 @@ def run(args):
             print(second_highest_steps)
         # evaluate metrics
         if args.evaluate:
-            dataset.data['prediction'] = output['summary']
+            
+            # labels = ["(A)", "(B)", "(C)", "(D)"]
+            # mapped_choices = dict(zip(labels, dataset.data.iloc[i]['choices']))
+            # print(mapped_choices)
+            if len(output['summary']) < 4 and 'A' in output['summary']
+                dataset.data['prediction'] = dataset.data.iloc[i]['choices'][0]
+            if len(output['summary']) < 4 and 'B' in output['summary']
+                dataset.data['prediction'] = dataset.data.iloc[i]['choices'][1]
+            if len(output['summary']) < 4 and 'C' in output['summary']
+                dataset.data['prediction'] = dataset.data.iloc[i]['choices'][2]
+            if len(output['summary']) < 4 and 'D' in output['summary']
+                dataset.data['prediction'] = dataset.data.iloc[i]['choices'][3]
+            else:
+                dataset.data['prediction'] = output['summary']
             pre = dataset.data.iloc[i]['prediction']
             print(f'결과:{pre}\n')
             gt = dataset.data.iloc[i]['answer']
