@@ -36,7 +36,7 @@ Problem: '''
 # Given problem:
 # '''
 
-image_description_prompt = "Briefly describe the image in a few words."
+image_description_prompt = "Briefly describe the image in a few sentences."
 # "Generate a very simple, short and accurate image description based on the given image."
 
 zero_single_proposal_prompt_en = '''
