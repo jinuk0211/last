@@ -244,17 +244,14 @@ class MCTS_Task(SearchTask):
         #     print('获得意见失败！\n')
         #     return '<end>'
         print(f'reflection 결과:{response}')
-        p = ''
-        for _ in response:
-            p = p + _ + ' '
-        p = p.strip()
+
 
        
         
-        if 'unsolved' in p or step_n <= 1:
+        if 'unsolved' in response or step_n <= 1:
             print('revised된 reflection: <continue>\n')
             return '<continue>'
-        elif 'solved' in p:
+        elif 'solved' in response:
             print('revised된 reflection: <end>\n')
             return '<end>'
         else:
