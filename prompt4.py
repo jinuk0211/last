@@ -36,7 +36,8 @@ Problem: '''
 # Given problem:
 # '''
 
-image_description_prompt = "Generate a very simple, short and accurate image description based on the given image."
+image_description_prompt = "Briefly describe the image in a few words."
+# "Generate a very simple, short and accurate image description based on the given image."
 
 zero_single_proposal_prompt_en = '''
 Given image, image description and an existing partial solution (not a complete answer), generate the correct next step to solve the problem
