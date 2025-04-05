@@ -93,7 +93,7 @@ def run(args):
                 # dataset.data.iloc[i]['prediction'] = real_list[3]
                 dataset.data.loc[i, 'prediction'] = real_list[3]
             else:
-                dataset.data.iloc[i]['prediction'] = output['summary']
+                dataset.data.loc[i, 'prediction'] = output['summary']
             pre = dataset.data.iloc[i]['prediction']
             print(f'결과:{pre}\n')
             gt = dataset.data.iloc[i]['answer']
