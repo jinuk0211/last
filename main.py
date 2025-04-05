@@ -20,7 +20,7 @@ from easydict import EasyDict
 
 
 def run(args):
-    os.environ["OPENAI_API_KEY"] = 
+    os.environ["OPENAI_API_KEY"] = "ㄷ
     os.environ["OPENAI_API_BASE"] = "https://api.openai.com/v1/chat/completions" # Replace with your actual base
     api_key = os.getenv("OPENAI_API_KEY")
     api_base = os.getenv("OPENAI_API_BASE")    
@@ -41,6 +41,7 @@ def run(args):
     # llm, tokenizer, model_dict = LLM('qwen')
     output_list = []
     correct_count = 0
+    dataset.data['prediction'] = ''
     for i in range(len(dataset.data)):
         image = dataset.data.iloc[i]['image']
         dataset.dump_image(dataset.data.iloc[i])
@@ -70,22 +71,27 @@ def run(args):
             print(second_highest_steps)
         # evaluate metrics
         if args.evaluate:
-                        
+            
             # labels = ["(A)", "(B)", "(C)", "(D)"]
             # mapped_choices = dict(zip(labels, dataset.data.iloc[i]['choices']))
             # print(mapped_choices)
             if len(output['summary']) < 5 and ('A' in output['summary'] or '(A' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
-                dataset.data.iloc[i]['prediction'] = real_list[0]
+                # dataset.data.iloc[i]['prediction'] = real_list[0]
+                dataset.data.loc[i, 'prediction'] = real_list[0]
             elif len(output['summary']) < 5 and ('B' in output['summary'] or '(B' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
-                dataset.data.iloc[i]['prediction'] = real_list[1]
+                # dataset.data.iloc[i]['prediction'] = real_list[1]
+                dataset.data.loc[i, 'prediction'] = real_list[1]
+                
             elif len(output['summary']) < 5 and ('C' in output['summary'] or '(C' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
-                dataset.data.iloc[i]['prediction'] = real_list[2]
+                # dataset.data.iloc[i]['prediction'] = real_list[2]
+                dataset.data.loc[i, 'prediction'] = real_list[2]
             elif len(output['summary']) < 5 and ('D' in output['summary'] or '(D' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
-                dataset.data.iloc[i]['prediction'] = real_list[3]
+                # dataset.data.iloc[i]['prediction'] = real_list[3]
+                dataset.data.loc[i, 'prediction'] = real_list[3]
             else:
                 dataset.data.iloc[i]['prediction'] = output['summary']
             pre = dataset.data.iloc[i]['prediction']
@@ -105,10 +111,10 @@ def run(args):
         'retry': 3,
         'model': "gpt-4o-mini"}
 
-    eval_results = dataset.evaluate('/workspace/last/dataset1.xlsx', **judge_kwargs)
+    eval_results = dataset.evaluate('/workspace/last/dataset.xlsx', **judge_kwargs)
     if True:
         dataset.data['solution'] = output['solution']
-        output_path = '/workspace/last/dataset_include_solution1.xlsx'
+        output_path = '/workspace/last/dataset_include_solution.xlsx'
         dataset.data.to_excel(output_path, index=False)
     print(eval_results)
 
