@@ -20,7 +20,7 @@ from easydict import EasyDict
 
 
 def run(args):
-    os.environ["OPENAI_API_KEY"] = "ㄷ
+    os.environ["OPENAI_API_KEY"] = 
     os.environ["OPENAI_API_BASE"] = "https://api.openai.com/v1/chat/completions" # Replace with your actual base
     api_key = os.getenv("OPENAI_API_KEY")
     api_base = os.getenv("OPENAI_API_BASE")    
@@ -30,7 +30,7 @@ def run(args):
         dataset_name = args.dataset#"MathVista_MINI"
         dataset = build_dataset(dataset_name, **dataset_kwargs)
         print(f'전체 데이터셋 길이:{len(dataset.data)}')
-        dataset.data = dataset.data.iloc[45:50]
+        dataset.data = dataset.data.iloc[:5]
         data_len = len(dataset.data)
     except Exception as e:
         print(f'File must be standardized json!\nError type:{e}\n')
