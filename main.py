@@ -76,18 +76,18 @@ def run(args):
             # print(mapped_choices)
             if len(output['summary']) < 5 and ('A' in output['summary'] or '(A' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
-                dataset.data['prediction'] = real_list[0]
+                dataset.data.iloc[i]['prediction'] = real_list[0]
             elif len(output['summary']) < 5 and ('B' in output['summary'] or '(B' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
-                dataset.data['prediction'] = real_list[1]
+                dataset.data.iloc[i]['prediction'] = real_list[1]
             elif len(output['summary']) < 5 and ('C' in output['summary'] or '(C' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
-                dataset.data['prediction'] = real_list[2]
+                dataset.data.iloc[i]['prediction'] = real_list[2]
             elif len(output['summary']) < 5 and ('D' in output['summary'] or '(D' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
-                dataset.data['prediction'] = real_list[3]
+                dataset.data.iloc[i]['prediction'] = real_list[3]
             else:
-                dataset.data['prediction'] = output['summary']
+                dataset.data.iloc[i]['prediction'] = output['summary']
             pre = dataset.data.iloc[i]['prediction']
             print(f'결과:{pre}\n')
             gt = dataset.data.iloc[i]['answer']
