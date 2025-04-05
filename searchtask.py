@@ -53,26 +53,12 @@ class SearchTask(object):
     def MATH_summary_prompt_wrap(x: str, y: str = '') -> str:
         MATH_summary_prompt = '''
         Given a problem, image, image description and its corresponding solution, your task is to extract the final answer obtained in the solution.
-        You should summarize the answer using the format: "The final answer is $...$". Replace "..." with the answer obtained in the solution.
-        Problem: '''
+        You should summarize the answer using the format: "The final answer is $...$". Replace "..." with the answer obtained in the solution.'''
+
 
         print('\n', '==============================', 'summary', '==============================', '\n')
         print('math_summary_prompt 대상:' + y + '\n\n')
-        prompt = MATH_summary_prompt + x + '\nSolution: ' + y + '\nExtracted answer:'
-        return prompt
-
-
-    @staticmethod
-    def general_evaluate_summary_prompt_wrap(x: str, y: str = '') -> str:
-        general_evaluate_summary_prompt = '''
-        Your task is to provide the final answer based on a given problem and the existing solution steps, following the specified format in the problem.
-        Below are a few examples for you to learn from.
-
-        Given problem:'''
-
-        print('\n', '==============================', 'summary', '==============================', '\n')
-        print('summary할 solution:' + y + '\n\n')
-        prompt = general_evaluate_summary_prompt + x + '\n' + y + '\noutput:'
+        prompt = x + '\nSolution: ' + y + '\n' + MATH_summary_prompt' \nExtracted answer:' 
         return prompt
 
 
