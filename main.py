@@ -70,18 +70,21 @@ def run(args):
             print(second_highest_steps)
         # evaluate metrics
         if args.evaluate:
-            
-            real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])            
+                        
             # labels = ["(A)", "(B)", "(C)", "(D)"]
             # mapped_choices = dict(zip(labels, dataset.data.iloc[i]['choices']))
             # print(mapped_choices)
-            if len(output['summary']) < 4 and 'A' in output['summary']:
+            if len(output['summary']) < 5 and ('A' in output['summary'] or '(A' in output['summary']):
+                real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
                 dataset.data['prediction'] = real_list[0]
-            elif len(output['summary']) < 4 and 'B' in output['summary']:
+            elif len(output['summary']) < 5 and ('B' in output['summary'] or '(B' in output['summary']):
+                real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
                 dataset.data['prediction'] = real_list[1]
-            elif len(output['summary']) < 4 and 'C' in output['summary']:
+            elif len(output['summary']) < 5 and ('C' in output['summary'] or '(C' in output['summary']):
+                real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
                 dataset.data['prediction'] = real_list[2]
-            elif len(output['summary']) < 4 and 'D' in output['summary']:
+            elif len(output['summary']) < 5 and ('D' in output['summary'] or '(D' in output['summary']):
+                real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
                 dataset.data['prediction'] = real_list[3]
             else:
                 dataset.data['prediction'] = output['summary']
@@ -93,7 +96,7 @@ def run(args):
             
             
     dataset.data = dataset.data.drop(columns=['image'])  
-    output_path = '/workspace/last/dataset.xlsx'
+    output_path = '/workspace/last/dataset1.xlsx'
     dataset.data.to_excel(output_path, index=False)
 
     judge_kwargs = {
@@ -102,10 +105,10 @@ def run(args):
         'retry': 3,
         'model': "gpt-4o-mini"}
 
-    eval_results = dataset.evaluate('/workspace/last/dataset.xlsx', **judge_kwargs)
+    eval_results = dataset.evaluate('/workspace/last/dataset1.xlsx', **judge_kwargs)
     if True:
         dataset.data['solution'] = output['solution']
-        output_path = '/workspace/last/dataset_include_solution.xlsx'
+        output_path = '/workspace/last/dataset_include_solution1.xlsx'
         dataset.data.to_excel(output_path, index=False)
     print(eval_results)
 
