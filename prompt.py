@@ -13,19 +13,28 @@ The output format is limited to: "Score:...", where ... represents the omitted o
 Here is the image description, Only generate the decimal score and follow the restricted format. Do not generate additional analysis or explanation.
 Input:
 '''
+zero_single_proposal_prompt_en = '''
+Given an image, image description, and an existing partial solution (not a complete answer), generate the correct next step to solve the problem.
+Please keep your response concise and limited to one reasoning step.
 
-critic_simplified = '''Given problem, image, image description, evaluate whether the reasoning steps can solve the provided problem and output a score. The score should be a decimal between 0 and 10. If all the steps are correct and the answer is calculated, the score is 10. The closer the steps are to the final answer, the closer the score is to 10. If there is no correct answer, never give a score higher than 9."
-Now, given a problem, image, image description and the provided steps, provide only the decimal score entirely based on the input image, image description,reasoning steps provided.
-The output format is limited to: "Score:...", where ... represents the omitted decimal score, which you need to fill in.
-Follow the output format.
+The output format is strictly:
+"Next step: ..."
+Please follow the restricted format and be brief.
 '''
+
+# critic_simplified = '''Given problem, image, image description, evaluate whether the reasoning steps can solve the provided problem and output a score. The score should be a decimal between 0 and 10. If all the steps are correct and the answer is calculated, the score is 10. The closer the steps are to the final answer, the closer the score is to 10. If there is no correct answer, never give a score higher than 9."
+# Now, given a problem, image, image description and the provided steps, provide only the decimal score entirely based on the input image, image description,reasoning steps provided.
+# The output format is limited to: "Score:...", where ... represents the omitted decimal score, which you need to fill in.
+# Follow the output format.
+# '''
+critic_simplified = '''Given problem, image, image description, Evaluate whether the reasoning steps can solve the problem, and output a score between 0 and 10. If there is no correct answer, never give a score higher than 9."
+The output format is limited to: "Score:...", where ... represents the omitted decimal score, which you need to fill in. Do not generate additional reasoning step or anaylsis. Follow the output format.
 
 single_reflection_prompt_simple_en = '''
 You are an expert in math. Given a problem, image, image description and reasoning steps (not necessarily complete) to answer it, you need to determine whether the given steps have completely solved the problem.
 If the given steps have provided the final answer to the question, then you should generate "Problem solved" and nothing else.
 If the given steps have not yet calculated the answer to the question or have not finished reasoning, then please generate "Problem unsolved" with no other content.
-Note that if the existing steps do not simplify the answer expression as required by the question, then it should be considered unsolved.
-Here is the input, please generate either "Problem solved" or "Problem unsolved".
+Here is the input, Do not generate additional reasoning step or anaylsis, please generate either "Problem solved" or "Problem unsolved". 
 
 Problem: '''
 
@@ -39,11 +48,11 @@ Problem: '''
 image_description_prompt = "Briefly describe the image in a few sentences."
 # "Generate a very simple, short and accurate image description based on the given image."
 
-zero_single_proposal_prompt_en = '''
-Given image, image description and an existing partial solution (not a complete answer), generate the correct next step to solve the problem
-The output format is limited to:
-"Next step: ..."
-where ... indicates the part you should fill in. Your output should be a only one reasoning step to solve the problem
-Here is the input, please follow the restricted output format. 
+# zero_single_proposal_prompt_en = '''
+# Given image, image description and an existing partial solution (not a complete answer), generate the correct next step to solve the problem
+# The output format is limited to:
+# "Next step: ..."
+# where ... indicates the part you should fill in. Your output should be a only one reasoning step to solve the problem
+# Here is the input, please follow the restricted output format. 
 
-Problem: '''
+# Problem: '''
