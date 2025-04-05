@@ -75,16 +75,6 @@ class SearchTask(object):
         prompt = general_evaluate_summary_prompt + x + '\n' + y + '\noutput:'
         return prompt
 
-    # Example 1
-    # Problem: Determine for which values of p the generalized integral \( \int_0^{+\infty} \frac{x^p \ln x}{(1+x^2)^2}dx \) converges.
-    # Image description:
-    # Given steps:
-    # Step 1: Consider the necessary and sufficient conditions for the convergence of the integral: Let \( J = \int_0^{+\infty} \frac{x^p \ln x}{(1+x^2)^2}dx \), \( J_1 = \int_0^{1} \frac{x^p \ln x}{(1+x^2)^2}dx \), \( J_2 = \int_1^{+\infty} \frac{x^p \ln x}{(1+x^2)^2}dx \). Then, the generalized integral \( J \) converges if and only if both \( J_1 \) and \( J_2 \) converge.
-
-    # Output:
-    # Analysis: The convergence of the generalized integral is determined by the integrals over its subintervals. According to Step 1, we have decomposed the original integral into two parts, \( J_1 \) and \( J_2 \). To determine the convergence of \( J \), we need to analyze these two parts separately. For \( J_1 \), within the interval \([0,1]\), specific behavior occurs as \( x \) approaches 0, so we need to study its behavior as \( x \) approaches 0. For \( J_2 \), the focus is on the behavior as \( x \) approaches \( +\infty \).
-    # Next step: To analyze the convergence of \( J_1 \), compare it with a known function (such as \( x^a \ln x \) where \( a > -1 \) is convergent) as \( x \to 0^+ \). Specifically, we can choose an appropriate \( q \) such that when \( p > q \), \( \frac{x^p \ln x}{(1+x^2)^2} > x^q \ln x \), thereby deducing the convergence of \( J_1 \).
-
 
 
     # @staticmethod
@@ -104,7 +94,7 @@ class SearchTask(object):
 
         if "<|eot_id|>" in y:
             y = y.replace("<|eot_id|>", "")                   
-        prompt = zero_single_proposal_prompt_en + x + '\n' + y 
+        prompt = x + '\n' + y + '\n' + zero_single_proposal_prompt_en
         return prompt
 
 
