@@ -5,6 +5,7 @@ from mctstask import MCTS_Task
 from node import treeNode
 from mcts import selectNode, get_next_steps_expand, expand
 
+import ast
 import torch
 import os
 import os.path as osp
@@ -70,17 +71,18 @@ def run(args):
         # evaluate metrics
         if args.evaluate:
             
+            real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])            
             # labels = ["(A)", "(B)", "(C)", "(D)"]
             # mapped_choices = dict(zip(labels, dataset.data.iloc[i]['choices']))
             # print(mapped_choices)
-            if len(output['summary']) < 4 and 'A' in output['summary']
-                dataset.data['prediction'] = dataset.data.iloc[i]['choices'][0]
-            if len(output['summary']) < 4 and 'B' in output['summary']
-                dataset.data['prediction'] = dataset.data.iloc[i]['choices'][1]
-            if len(output['summary']) < 4 and 'C' in output['summary']
-                dataset.data['prediction'] = dataset.data.iloc[i]['choices'][2]
-            if len(output['summary']) < 4 and 'D' in output['summary']
-                dataset.data['prediction'] = dataset.data.iloc[i]['choices'][3]
+            if len(output['summary']) < 4 and 'A' in output['summary']:
+                dataset.data['prediction'] = real_list[0]
+            elif len(output['summary']) < 4 and 'B' in output['summary']:
+                dataset.data['prediction'] = real_list[1]
+            elif len(output['summary']) < 4 and 'C' in output['summary']:
+                dataset.data['prediction'] = real_list[2]
+            elif len(output['summary']) < 4 and 'D' in output['summary']:
+                dataset.data['prediction'] = real_list[3]
             else:
                 dataset.data['prediction'] = output['summary']
             pre = dataset.data.iloc[i]['prediction']
