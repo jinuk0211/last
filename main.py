@@ -30,7 +30,7 @@ def run(args):
         dataset_name = args.dataset#"MathVista_MINI"
         dataset = build_dataset(dataset_name, **dataset_kwargs)
         print(f'전체 데이터셋 길이:{len(dataset.data)}')
-        dataset.data = dataset.data.iloc[5:30]
+        dataset.data = dataset.data.iloc[45:50]
         data_len = len(dataset.data)
     except Exception as e:
         print(f'File must be standardized json!\nError type:{e}\n')
