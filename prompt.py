@@ -20,6 +20,7 @@ Please keep your response concise and limited to one reasoning step.
 The output format is strictly:
 "Next step: ..."
 Please follow the restricted format and be brief.
+If solvable, include the final answer.
 '''
 
 # critic_simplified = '''Given problem, image, image description, evaluate whether the reasoning steps can solve the provided problem and output a score. The score should be a decimal between 0 and 10. If all the steps are correct and the answer is calculated, the score is 10. The closer the steps are to the final answer, the closer the score is to 10. If there is no correct answer, never give a score higher than 9."
