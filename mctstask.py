@@ -446,7 +446,9 @@ class MCTS_Task(SearchTask):
         else:
             lmm_prompt = self.value_prompt_wrap(self.question, y) 
             llm_prompt = self.llm_prompt(self.question, y)
-            response = get_value(self.model,self.processor, prompt_answer, lmm_prompt, action, self.value_method, img_path=self.img_path)
+            #response = get_value(self.model,self.processor, prompt_answer, lmm_prompt, action, self.value_method, img_path=self.img_path)
+            response = get_value(self.model_dict['model'], self.model_dict['tokenizer'], prompt_answer, lmm_prompt, action, self.value_method, img_path=self.img_path)
+            
             value = self.value_outputs_unwrap(response, self.low, 10.0)
         # from model import llm_proposal
         # llm_response = llm_proposal(self.model_dict['model'],self.model_dict['tokenizer'],llm_prompt)
@@ -483,8 +485,8 @@ def get_value(model, processor, prompt, lmm_prompt, action, value_method, img_pa
     else:  #lmm은 둘다동일하지만 이제 img -> clip, reasoning_step -> llm
         while not response and cnt:
             # value = LLM(llm_prompt, BASE_MODEL_GLM, temperature=temperature, max_tokens=max_tokens, seed=seed)
-            response = get_proposal(model, processor, lmm_prompt, img_path)
-
+            #response = get_proposal(model, processor, lmm_prompt, img_path)
+            response = llm_proposal(model,processor, lmm_prompt)
             cnt -= 1
         # if not value:
         #     print(f'obtain<{method}>score fail!\n')
