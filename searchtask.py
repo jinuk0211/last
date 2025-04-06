@@ -58,7 +58,7 @@ class SearchTask(object):
 
         print('\n', '==============================', 'summary', '==============================', '\n')
         print('math_summary_prompt 대상:' + y + '\n\n')
-        prompt = x + '\nSolution: ' + y + '\n' + MATH_summary_prompt' \nExtracted answer:' 
+        prompt = x + '\nSolution: ' + y + '\n' + MATH_summary_prompt +'\nExtracted answer:' 
         return prompt
 
 

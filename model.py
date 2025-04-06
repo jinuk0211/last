@@ -15,9 +15,8 @@ def LLM(model):
             torch_dtype="auto",
             device_map="auto"
         )
-        model_dict['tokenizer']tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model_dict['tokenizer'] = AutoTokenizer.from_pretrained(model_name)
         model_dict['model'] = model
-         = tokenizer
         return model_dict
     if model == 'all':
         print('init llm model')       
