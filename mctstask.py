@@ -1,6 +1,6 @@
 from mcts import MCTS
 from searchtask import SearchTask
-from model import get_proposal
+from model import get_proposal, llm_proposal
 from utils import extract_summary_from_solution, llm_verify, exact_match_score
 from transformers import CLIPModel, AutoProcessor,Qwen2_5_VLForConditionalGeneration, AutoTokenizer
 import torch
@@ -166,64 +166,11 @@ class MCTS_Task(SearchTask):
 
 
 
-    def get_next_step_use_reflection(self, y, step_n, reflection):  # 暂不支持 case-prompt
-        if self.propose_method == 'gpt' or self.propose_method == 'local':
-            propose_prompt = self.zero_single_propose_wrap_use_reflection_gpt(self.question, y, step_n, reflection,
-                                                                              self.lang)
-        else:
-            propose_prompt = self.zero_single_propose_wrap_use_reflection(self.question, y, step_n, reflection,
-                                                                          self.lang)
-        response = get_proposal(self.model, self.processor, propose_prompt,self.img_path)
-        if not response:
-            print('获得下一步失败！\n')
-            return ''
-
-        if len(response) > 5:
-            response = response[:5]
-
-        p = ''
-        for _ in response:
-            p = p + _ + ' '
-        p = p.strip()
-
-        if "Next step:" in p:
-            stp = p.split('Next step:')[1].strip()
-            if len(stp) < 2:
-                print('output이 너무 적습니다!\n')
-                return ''
-            if stp in y:
-                print('输出步骤重复！\n')
-                return ''
-
-            revised_ = 'Step ' + str(step_n-1) + ': ' + stp
-            print(f'标准化后新的步骤:{revised_}\n')
-            return revised_ + '\n'
-
-        elif "Step" in p and ":" in p:
-            pre_len = len(p.split(':')[0])
-            p_ = p[pre_len:]
-            p_ = p_.split('Step')[0].strip()
-            if len(p_) < 4:
-                print('output이 너무 적습니다!\n')
-                return ''
-            p_ = p_[1:].strip()
-            if p_ in y:
-                print('输出步骤重复！\n')
-                return ''
-
-            revised_ = 'Step ' + str(step_n-1) + ': ' + p_
-            print(f'标准化后新的步骤:{revised_}\n')
-            return revised_ + '\n'
-
-        else:
-            print('输出格式有误！\n')
-            return ''
-
     def get_simple_reflection(self, y, step_n):
         if step_n == 1:
             return '<continue>'
         if self.propose_method in ['local', 'mistral', 'llama'] and self.lang == 'en':
-            if 'answer is' in y or '\\boxed' in y:
+            if 'answer' in y or '\\boxed' in y:
                 return '<end>'
 
         if self.propose_method == 'mistral':
@@ -234,7 +181,8 @@ class MCTS_Task(SearchTask):
           cnt = 3
           response = []
           while not response and cnt:
-              response = get_proposal(self.model, self.processor, reflection_prompt,self.img_path)
+            #   response = get_proposal(self.model, self.processor, reflection_prompt,self.img_path)
+              response = llm_proposal(self.model_dict['model'], self.model_dict['tokenizer'], reflection_prompt)
               cnt -= 1
                   
         except Exception as e:

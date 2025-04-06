@@ -8,16 +8,17 @@ def LLM(model):
     model_dict = {}
     if model == 'qwen':
         print('init llm model')       
-        model_name = "Qwen/Qwen2.5-7B-Instruct"
+        # model_name = "Qwen/Qwen2.5-7B-Instruct"
+        model_name = "Qwen/Qwen2.5-14B-Instruct"
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
             torch_dtype="auto",
             device_map="auto"
         )
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model_dict['tokenizer']tokenizer = AutoTokenizer.from_pretrained(model_name)
         model_dict['model'] = model
-        model_dict['tokenizer'] = tokenizer
-        return model, tokenizer, model_dict
+         = tokenizer
+        return model_dict
     if model == 'all':
         print('init llm model')       
         model_name = "Qwen/Qwen2.5-7B-Instruct"
@@ -36,7 +37,7 @@ def LLM(model):
         model_dict['clip_processor'] = clip_processor
 
         return model, tokenizer, model_dict   
-def llm_proposal(model,tokenizer,prompt,model_name='qwen'):
+def llm_proposal(model=None,tokenizer=None,prompt=None,model_name='qwen'):
     if model_name =='qwen':
         messages = [ {"role": "system", "content": "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."},
             {"role": "user", "content": prompt}]
@@ -53,7 +54,19 @@ def llm_proposal(model,tokenizer,prompt,model_name='qwen'):
             output_ids[len(input_ids):] for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)]
 
         response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        return response   
+        return response  
+    if model_name == 'gpt':
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.0,
+        )
+
+        # 🎯 출력 결과
+        reply = response['choices'][0]['message']['content'].strip()
+        return reply 
 def llama(model):
     if model == 'llama':
         print('init llama 3.2 vision 11b model')
