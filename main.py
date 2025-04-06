@@ -38,7 +38,7 @@ def run(args):
     assert data_len > 0, "Data list is empty!\n"
     model, processor = llama('llama')
     # model, processor = qwen('Qwen2_5')
-    # llm, tokenizer, model_dict = LLM('qwen')
+    model_dict = LLM('qwen')
     output_list = []
     correct_count = 0
     dataset.data['prediction'] = ''
@@ -56,7 +56,7 @@ def run(args):
                             args.roll_policy, args.roll_branch, args.roll_forward_steps, args.time_limit,
                             args.iteration_limit, args.exploration_constant, args.alpha, args.inf,
                             args.temperature, use_case_prompt=args.use_case_prompt, use_reflection=args.use_reflection,
-                            low=args.low, high=args.high, evaluate=args.evaluate,img_path=img)
+                            low=args.low, high=args.high, evaluate=args.evaluate,img_path=img,model_dict=model_dict)
         output, root = Task.run()
         print('content:')
         print(output['content'])
