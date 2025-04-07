@@ -49,7 +49,9 @@ def run(args):
         question = dataset.data.iloc[i]['question']
         if not pd.isnull(dataset.data.iloc[i]['choices']):
             choices = dataset.data.iloc[i]['choices']
-
+        if "Yes" or "No" in dataset.data.iloc[i]['choices']:
+            args.iteration_limit = 4
+            args.roll_forward_step = 2
 # base_args.add_argument('--propose_method', type=str, choices=['gpt', 'glm', 'llama', 'local'], default='glm')
 # base_args.add_argument('--value_method', type=str, choices=['gpt', 'glm', 'local'], default='local')
         Task = MCTS_Task(question, model, processor, args.propose_method, args.value_method, args.branch, args.end_gate,
@@ -139,9 +141,9 @@ def get_args():
         'mode': 'mcts',  # choices: ['cot', 'tot', 'mcts']
         'temperature': 0.7,
         'time_limit': None,
-        'iteration_limit': 5,
+        'iteration_limit': 6,
         'roll_forward_steps': 2, #2단계 simulation
-        'roll_branch': 2, #다음 step에서 몇개의 step을 생성할지
+        'roll_branch': 3, #다음 step에서 몇개의 step을 생성할지
         'roll_policy': 'greedy',  # choices: ['random', 'greedy']
         'exploration_constant': 0.4,
         'end_gate': 9.0,  # End threshold
