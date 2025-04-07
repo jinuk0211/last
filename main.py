@@ -30,7 +30,7 @@ def run(args):
         dataset_name = args.dataset#"MathVista_MINI"
         dataset = build_dataset(dataset_name, **dataset_kwargs)
         print(f'전체 데이터셋 길이:{len(dataset.data)}')
-        dataset.data = dataset.data.iloc[:10]
+        dataset.data = dataset.data.iloc[10:]
         data_len = len(dataset.data)
     except Exception as e:
         print(f'File must be standardized json!\nError type:{e}\n')
@@ -78,22 +78,22 @@ def run(args):
             if len(output['summary']) < 5 and ('A' in output['summary'] or '(A' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
                 # dataset.data.iloc[i]['prediction'] = real_list[0]
-                dataset.data.loc[i, 'prediction'] = real_list[0]
+                dataset.data.loc[10+i, 'prediction'] = real_list[0]
             elif len(output['summary']) < 5 and ('B' in output['summary'] or '(B' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
                 # dataset.data.iloc[i]['prediction'] = real_list[1]
-                dataset.data.loc[i, 'prediction'] = real_list[1]
+                dataset.data.loc[10+i, 'prediction'] = real_list[1]
                 
             elif len(output['summary']) < 5 and ('C' in output['summary'] or '(C' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
                 # dataset.data.iloc[i]['prediction'] = real_list[2]
-                dataset.data.loc[i, 'prediction'] = real_list[2]
+                dataset.data.loc[10+i, 'prediction'] = real_list[2]
             elif len(output['summary']) < 5 and ('D' in output['summary'] or '(D' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
                 # dataset.data.iloc[i]['prediction'] = real_list[3]
-                dataset.data.loc[i, 'prediction'] = real_list[3]
+                dataset.data.loc[10+i, 'prediction'] = real_list[3]
             else:
-                dataset.data.loc[i, 'prediction'] = output['summary']
+                dataset.data.loc[10+i, 'prediction'] = output['summary']
             pre = dataset.data.iloc[i]['prediction']
             print(f'결과:{pre}\n')
             gt = dataset.data.iloc[i]['answer']
