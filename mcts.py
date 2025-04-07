@@ -7,7 +7,7 @@ import random
 import time
 def isTerminal(node, mcts_task):
     if mcts_task.reward_model_type == 'vm':
-        return node.V >= 9.3
+        return node.V >= 10
     else:
         return False
     
