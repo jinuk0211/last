@@ -154,12 +154,25 @@ class MCTS_Task(SearchTask):
         print(f'response:{response}')
         # if len(response) > 5:
         #     response = response[:5]
-        
+            if 'step:' in response:
+                re = response[len("Next step: "):] 
+                if len(stp) < 2:
+                    print('输出步骤过短！\n')
+                    return ''
+                if stp in y:
+                    print('输出步骤重复！\n')
+                    return ''        
         if response.startswith("Next step: "):  
             stp = response[len("Next step: "):]  # "Next step: " 길이만큼 잘라냄
+            if stp in y:
+                print('중복！\n')
+                return ''  
             revised_ = 'Step ' + str(step_n-1) + ': ' + stp
         else:
             stp = response  # "Next step: "이 없으면 그대로 유지
+            if stp in y:
+                print('중복！\n')
+                return ''  
             revised_ = stp
         print(f'revised 이후의 step: {revised_}\n')
         return revised_ + '\n'
