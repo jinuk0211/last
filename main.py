@@ -87,11 +87,13 @@ def run(args):
             elif len(output['summary']) < 5 and ('C' in output['summary'] or '(C' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
                 # dataset.data.iloc[i]['prediction'] = real_list[2]
-                dataset.data.loc[10+i, 'prediction'] = real_list[2]
+                if real_list[2]:
+                    dataset.data.loc[10+i, 'prediction'] = real_list[2]
             elif len(output['summary']) < 5 and ('D' in output['summary'] or '(D' in output['summary']):
                 real_list = ast.literal_eval(dataset.data.iloc[i]['choices'])
                 # dataset.data.iloc[i]['prediction'] = real_list[3]
-                dataset.data.loc[10+i, 'prediction'] = real_list[3]
+                if real_list[3]:
+                    dataset.data.loc[10+i, 'prediction'] = real_list[3]
             else:
                 dataset.data.loc[10+i, 'prediction'] = output['summary']
             pre = dataset.data.iloc[i]['prediction']
