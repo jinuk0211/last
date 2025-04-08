@@ -153,15 +153,7 @@ class MCTS_Task(SearchTask):
             return ''
         print(f'response:{response}')
         # if len(response) > 5:
-        #     response = response[:5]
-            if 'step:' in response:
-                re = response[len("Next step: "):] 
-                if len(stp) < 2:
-                    print('输出步骤过短！\n')
-                    return ''
-                if stp in y:
-                    print('输出步骤重复！\n')
-                    return ''        
+        #     response = response[:5]   
         if response.startswith("Next step: "):  
             stp = response[len("Next step: "):]  # "Next step: " 길이만큼 잘라냄
             if stp in y:
