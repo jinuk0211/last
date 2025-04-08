@@ -440,14 +440,14 @@ class MCTS_Task(SearchTask):
             response = get_value(self.model,self.processor, prompt_answer, lmm_prompt, action, self.value_method, img_path=self.img_path)
             value = self.value_outputs_unwrap(response, self.low, 10.0)
             # value = (1-self.alpha)*confidence + self.alpha*value
-            print(f'unwrap된 value:{value}\n') #평가받기
+            print(f'unwrap된 value:{value - 2}\n') #평가받기
             print(' get step value 함수 끝\n')
             # from model import get_clip_score
             # clip_score = get_clip_score(action,self.img_path,model_dict['clip'],model_dict['clip_processor'])
             #   def get_clip_score(new_text, image, model, processor):
             self.value_cache.update({y: value})
             # return llm_value* 0.5 + value * 0.5
-            return value
+            return value - 2
         else:
             lmm_prompt = self.value_prompt_wrap(self.question, y) 
             llm_prompt = self.llm_prompt(self.question, y)
