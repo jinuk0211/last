@@ -263,7 +263,7 @@ class MCTS_Task(SearchTask):
             else:
                 prompt = self.summary_prompt_wrap(self.question, y)
 
-            response = get_proposal(self.model, self.processor, prompt, self.img_path)
+            response = llm_proposal(self.model_dict['model'], self.model_dict['tokenizer'], prompt)
 
             if not response:
                 print('Failed to get the review!失败！\n')
@@ -318,7 +318,7 @@ class MCTS_Task(SearchTask):
 
     def get_MATH_summary(self, y):
         prompt = self.MATH_summary_prompt_wrap(self.question, y)
-        response = get_proposal(self.model, self.processor, prompt, self.img_path)
+        response = llm_proposal(self.model_dict['model'], self.model_dict['tokenizer'], prompt)
         if not response:
             print('Failed to get the review!失败！\n')
             return ''
